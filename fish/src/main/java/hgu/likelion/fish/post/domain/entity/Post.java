@@ -18,7 +18,13 @@ public class Post extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-
+    private String name;
+    private int fishCount;
+    private int fishWeight;
+    private int reservePrice;
+    private String registrationStatus;
+    private String auctionStatus;
+    private String commentBySeller;
+    private String aiEvaluation;
 
 }
