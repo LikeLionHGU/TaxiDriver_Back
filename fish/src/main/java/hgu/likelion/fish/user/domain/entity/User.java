@@ -20,7 +20,13 @@ public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
+    private int userStatus;
+    private int bidCount;
+    private String phoneNumber;
+    private int totalBuyPrice;
+    private int totalSellPrice;
+    private String companyName;
 
     private String name;
 
