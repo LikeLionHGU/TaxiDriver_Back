@@ -19,15 +19,14 @@ import java.util.List;
 public class User extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     private int userStatus;
     private int bidCount;
     private String phoneNumber;
     private int totalBuyPrice;
     private int totalSellPrice;
     private String companyName;
-
+    private String email;
     private String name;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
