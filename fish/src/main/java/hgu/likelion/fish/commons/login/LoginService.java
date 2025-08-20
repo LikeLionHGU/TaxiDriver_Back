@@ -1,11 +1,11 @@
 package hgu.likelion.fish.commons.login;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import hgu.likelion.fish.commons.jwt.JWTProvider;
+import hgu.likelion.fish.commons.jwt.SessionJwtService;
+import hgu.likelion.fish.commons.login.config.Role;
 import hgu.likelion.fish.commons.login.social.GoogleOAuth;
 import hgu.likelion.fish.commons.login.social.GoogleOAuthToken;
 import hgu.likelion.fish.commons.login.social.GoogleUser;
-import hgu.likelion.fish.commons.security.Authority;
 import hgu.likelion.fish.user.domain.entity.User;
 import hgu.likelion.fish.user.domain.repository.UserRepository;
 import hgu.likelion.fish.user.presentation.response.UserResponse;
@@ -16,8 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +24,7 @@ public class LoginService {
     private final GoogleOAuth googleOAuth;
     private final HttpServletResponse response;
     private final UserRepository userRepository;
-    private final JWTProvider jwtProvider;
+    private final SessionJwtService sessionJwtService;
 
     public void request() throws IOException {
         String redirectURL = googleOAuth.getOauthRedirectURL();
@@ -49,21 +48,35 @@ public class LoginService {
 
     @Transactional
     public UserResponse login(GoogleUser googleUser) {
-        Optional<User> optionalUser = userRepository.findById(googleUser.getId());
-        User user;
+        User user = userRepository.findById(googleUser.getId())
+                .map(u -> {
+                    // 필요 시 프로필 동기화
+                    u.setName(googleUser.getName());
+                    u.setEmail(googleUser.getEmail());
+                    return u;
+                })
+                .orElseGet(() -> {
+                    User u = User.builder()
+                            .id(googleUser.getId())
+                            .name(googleUser.getName())
+                            .email(googleUser.getEmail())
+                            .build();
+                    u.addRole(Role.ROLE_USER);                // ★ 기본 권한
+                    return userRepository.save(u);
+                });
 
-        if(optionalUser.isEmpty()) {
-            user = User.builder()
-                    .id(googleUser.getId())
-                    .name(googleUser.getName())
-                    .email(googleUser.getEmail())
-                    .build();
-            user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
-            userRepository.save(user);
-        } else {
-            user = optionalUser.get();
-        }
+        // JWT에 들어갈 권한 문자열로 변환
+        List<String> roleNames = user.getRoles().stream()
+                .map(Enum::name) // "ROLE_USER"
+                .toList();
 
-        return UserResponse.toResponse(user, jwtProvider.createToken(user.getId(), user.getRoles()));
+        String jwt = sessionJwtService.issue(
+                user.getId(),
+                roleNames,         // ★ 순수 문자열 리스트
+                60 * 30,           // 예: 30분(초 단위라면)
+                /*tokenVersion*/ 1  // 운영 시 DB에 컬럼 두고 관리 권장
+        );
+
+        return UserResponse.toResponse(user, jwt);
     }
 }
