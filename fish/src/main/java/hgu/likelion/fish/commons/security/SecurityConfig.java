@@ -3,6 +3,9 @@ package hgu.likelion.fish.commons.security;
 
 
 import hgu.likelion.fish.commons.jwt.JwtCookieAuthFilter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,10 +21,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.OncePerRequestFilter;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,66 +36,69 @@ import java.util.List;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
+
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http, JwtCookieAuthFilter jwtCookieAuthFilter) throws Exception {
+
+        // 1) 쿠키에 XSRF-TOKEN 발급 (HttpOnly=false → 프론트/포스트맨에서 읽어 헤더로 보낼 수 있음)
+        var repo = CookieCsrfTokenRepository.withHttpOnlyFalse();
+
+        // 2) 헤더에는 "마스킹되지 않은(raw) 토큰"을 기대하도록 설정
+        var requestHandler = new CsrfTokenRequestAttributeHandler();
+        requestHandler.setCsrfRequestAttributeName("_csrf"); // (선택) 요청 attribute 이름
+
         http
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf
-                                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        // 필요 시 일부 엔드포인트만 예외
-                        // .ignoringRequestMatchers("/api/logout")
+                        .csrfTokenRepository(repo)
+                        .csrfTokenRequestHandler(requestHandler)   // ★ 핵심: raw 토큰을 받아들임
                 )
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ★ 무상태
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(h -> h.disable())
                 .formLogin(f -> f.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login/oauth2/**", "/api/v1/oauth2/google").permitAll()
-                        .requestMatchers("/temp").hasRole("ADMIN")
-                        .requestMatchers("/test").permitAll()
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/temp", "/test", "/user/update").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtCookieAuthFilter, UsernamePasswordAuthenticationFilter.class); // ★ 쿠키필터
+                .addFilterBefore(jwtCookieAuthFilter, UsernamePasswordAuthenticationFilter.class)
+
+                // (선택) 3) 항상 XSRF-TOKEN 쿠키가 내려가도록 보조 필터
+                //  - GET으로 한 번만 방문해도 쿠키가 보장되게 함
+                .addFilterAfter(new OncePerRequestFilter() {
+                    @Override
+                    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+                            throws ServletException, IOException {
+                        // 이 attribute를 한 번 읽으면 CookieCsrfTokenRepository가 쿠키를 셋업함
+                        req.getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName());
+                        chain.doFilter(req, res);
+                    }
+                }, CsrfFilter.class);
+
         return http.build();
     }
 //    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//
+//    SecurityFilterChain filterChain(HttpSecurity http, JwtCookieAuthFilter jwtCookieAuthFilter) throws Exception {
 //        http
-//                // CORS: 정확한 오리진 + credentials 허용
 //                .cors(c -> c.configurationSource(corsConfigurationSource()))
-//                // 브라우저 환경이면 CSRF를 켜고, 쿠키로 토큰 전달 (SPA는 헤더로 되돌려보내면 됨)
 //                .csrf(csrf -> csrf
-//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+//                                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+//                        // 필요 시 일부 엔드포인트만 예외
+////                         .ignoringRequestMatchers("/temp")
 //                )
-//                // 세션 기반 (STATEFUL)
-//                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+//                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ★ 무상태
 //                .httpBasic(h -> h.disable())
 //                .formLogin(f -> f.disable())
-//
 //                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/login/oauth2/**").permitAll()        // OAuth2 redirect URI
-//                        .requestMatchers("/api/v1/oauth2/google").permitAll()   // 콜백 엔드포인트
-//                        .requestMatchers(HttpMethod.GET, "/api/me").authenticated()
-//                        .requestMatchers(HttpMethod.POST, "/api/logout").authenticated()
-//                        .anyRequest().authenticated()                            // 나머지는 인증 필요
+//                        .requestMatchers("/login/oauth2/**", "/api/v1/oauth2/google").permitAll()
+//                        .requestMatchers("/temp").permitAll()
+//                        .requestMatchers("/test").permitAll()
+//                        .requestMatchers("/user/update").permitAll()
+//                        .anyRequest().authenticated()
 //                )
-//
-//                // 로그아웃: 서버 세션 무효화 + 만료 쿠키 내려주기
-//                .logout(l -> l
-//                        .logoutUrl("/api/logout")
-//                        .logoutSuccessHandler((req, res, auth) -> {
-//                            var session = req.getSession(false);
-//                            if (session != null) session.invalidate();
-//
-//                            // HTTPS 운영이라면 secure(true) 권장
-//                            ResponseCookie expired = ResponseCookie.from("JSESSIONID", "")
-//                                    .httpOnly(true).secure(true).sameSite("Lax")
-//                                    .path("/").maxAge(0)
-//                                    .build();
-//                            res.addHeader("Set-Cookie", expired.toString());
-//                            res.setStatus(HttpServletResponse.SC_NO_CONTENT);
-//                        })
-//                );
+//                .addFilterBefore(jwtCookieAuthFilter, UsernamePasswordAuthenticationFilter.class); // ★ 쿠키필터
 //
 //        return http.build();
 //    }
