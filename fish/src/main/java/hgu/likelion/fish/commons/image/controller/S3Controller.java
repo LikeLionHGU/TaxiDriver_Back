@@ -22,7 +22,7 @@ public class S3Controller {
     @PostMapping("/image")
     public ResponseEntity<String> updateUserImage(@RequestParam("images") MultipartFile multipartFile) {
         try {
-            String uploadUrl = s3Service.uploadFiles(multipartFile, "likelion-study/");
+            String uploadUrl = s3Service.uploadFiles(multipartFile, "va/");
             return ResponseEntity.ok(uploadUrl);
         } catch (Exception e) {
             return ResponseEntity.ok("이미지 업로드에 실패했습니다: " + e.getMessage());
@@ -35,7 +35,7 @@ public class S3Controller {
         StringBuilder uploadUrls = new StringBuilder();
         try {
             for (MultipartFile multipartFile : multipartFiles) {
-                String uploadUrl = s3Service.uploadFiles(multipartFile, "likelion-study/");
+                String uploadUrl = s3Service.uploadFiles(multipartFile, "va/");
                 uploadUrls.append(uploadUrl).append("\n");
             }
         } catch (Exception e) {
