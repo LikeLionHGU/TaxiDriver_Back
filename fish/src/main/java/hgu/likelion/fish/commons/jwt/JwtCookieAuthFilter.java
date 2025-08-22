@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -66,6 +67,13 @@ public class JwtCookieAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.clearContext();
             }
         }
+        CsrfToken csrf = (CsrfToken) req.getAttribute(CsrfToken.class.getName());
+        if (csrf != null) {
+            // 필요시 response header에도 넣어줄 수 있음
+            res.setHeader("X-CSRF-TOKEN", csrf.getToken());
+        }
+
+        req.getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName());
         chain.doFilter(req, res);
     }
 
