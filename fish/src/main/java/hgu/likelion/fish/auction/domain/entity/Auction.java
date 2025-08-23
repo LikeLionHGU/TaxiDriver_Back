@@ -1,5 +1,6 @@
 package hgu.likelion.fish.auction.domain.entity;
 
+import hgu.likelion.fish.auction.application.dto.AuctionDto;
 import hgu.likelion.fish.commons.entity.BaseEntity;
 import hgu.likelion.fish.post.domain.entity.Post;
 import hgu.likelion.fish.user.domain.entity.User;
@@ -31,4 +32,13 @@ public class Auction extends BaseEntity {
     private Post post;
 
 
+    public static Auction fromDto(AuctionDto auctionDto) {
+        return Auction.builder()
+                .id(auctionDto.getId())
+                .user(auctionDto.getUser())
+                .price(auctionDto.getPrice())
+                .post(auctionDto.getPost())
+                .build();
+
+    }
 }
