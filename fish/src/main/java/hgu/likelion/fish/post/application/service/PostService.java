@@ -118,6 +118,7 @@ public class PostService {
         return postList.stream().map(PostDto::toGetResponse).toList();
     }
 
+    @Transactional
     public List<PostDto> getAllPostChecks(DateStatus status) {
 
         List<Post> postList;
@@ -142,6 +143,7 @@ public class PostService {
         return postList.stream().map(PostDto::from).toList();
     }
 
+    @Transactional
     public List<PostDto> getSpecificPostChecks(DateStatus status, RegisterStatus registerStatus) {
 
         List<Post> postList;

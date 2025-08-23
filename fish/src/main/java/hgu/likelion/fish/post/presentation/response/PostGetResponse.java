@@ -30,7 +30,7 @@ public class PostGetResponse {
                 .registrationStatus(postDto.getRegistrationStatus())
                 .fishCount(postDto.getFishCount())
                 .fishWeight(postDto.getFishWeight())
-                .registeredDate(postDto.getRegDate())
+                .registeredDate(postDto.getRegisteredDate())
                 .build();
     }
 }
