@@ -65,8 +65,7 @@ public class PostService {
         List<PostDto> postDtoList = new ArrayList<>();
 
         for (Post post : posts) {
-            Long userId = post.getSellerId();
-            User user = userRepository.findUserByUserId(String.valueOf(userId));
+            User user = post.getSeller();
             PostDto postDto = PostDto.from(post, user);
             postDtoList.add(postDto);
         }
@@ -81,8 +80,7 @@ public class PostService {
         List<PostDto> postDtoList = new ArrayList<>();
 
         for (Post post : posts) {
-            Long userId = post.getSellerId();
-            User user = userRepository.findUserByUserId(String.valueOf(userId));
+            User user = post.getSeller();
             PostDto postDto = PostDto.from(post, user);
             postDtoList.add(postDto);
         }
@@ -147,6 +145,34 @@ public class PostService {
         }
 
         return postList.stream().map(PostDto::toGetResponse).toList();
+    }
+
+    @Transactional
+    public List<PostDto> getAllAuctionPosts() {
+        return postRepository.findAllByRegistrationStatus(RegisterStatus.REGISTER_SUCCESS).stream().map(PostDto::toAuctionResponse).toList();
+    }
+
+    @Transactional
+    public Boolean updateRegisterStatus(Boolean value, Long id) {
+
+        try {
+            Post post = postRepository.findById(id).orElse(null);
+
+            if(value) {
+                post.setRegistrationStatus(RegisterStatus.REGISTER_SUCCESS);
+                post.setTriggerAt(LocalDateTime.now());
+                postRepository.save(post);
+            } else {
+                post.setRegistrationStatus(RegisterStatus.REGISTER_FAILED);
+                postRepository.save(post);
+            }
+
+            return true;
+
+        } catch (Exception e) {
+            return false;
+        }
+
     }
 
 

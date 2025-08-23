@@ -10,6 +10,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +40,9 @@ public class Post extends BaseEntity {
 
     private String commentBySeller;
     private String aiEvaluation;
+
+    private LocalDateTime triggerAt;
+    private LocalDateTime startedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User buyer;
