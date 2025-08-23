@@ -27,18 +27,17 @@ public class Post extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private int fishCount;
+    private Integer fishCount;
     private String fishWeight;
     private String fishStatus;
     private String salesMethod;
-    private int reservePrice;
+    private Integer reservePrice;
 
     private RegisterStatus registrationStatus;
     private AuctionStatus auctionStatus;
 
     private String commentBySeller;
     private String aiEvaluation;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User buyer;

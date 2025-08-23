@@ -17,7 +17,7 @@ public class PostGetResponse {
     private String name;
     private String sellerName;
     private RegisterStatus registrationStatus;
-    private int fishCount;
+    private Integer fishCount;
     private String fishWeight;
     private LocalDateTime registeredDate;
 

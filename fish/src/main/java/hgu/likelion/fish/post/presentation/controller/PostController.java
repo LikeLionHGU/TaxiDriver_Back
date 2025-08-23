@@ -1,5 +1,8 @@
 package hgu.likelion.fish.post.presentation.controller;
 
+import hgu.likelion.fish.commons.entity.AuctionStatus;
+import hgu.likelion.fish.commons.entity.DateStatus;
+import hgu.likelion.fish.commons.entity.RegisterStatus;
 import hgu.likelion.fish.commons.image.service.S3Service;
 import hgu.likelion.fish.commons.jwt.MyPrincipal;
 import hgu.likelion.fish.post.application.dto.PostDto;
@@ -61,12 +64,6 @@ public class PostController {
     }
 
 
-    @GetMapping("/get/all")
-    public ResponseEntity<List<PostGetResponse>> getAllPosts() {
-        return ResponseEntity.ok(postService.getAllPost().stream().map(PostGetResponse::toResponse).toList());
-    }
-
-
     private int loginOrNot(@AuthenticationPrincipal MyPrincipal principal) {
         String userId = (String) principal.getUserId();
         if (userId == null) {
@@ -74,4 +71,28 @@ public class PostController {
         }
         return 1;
     }
+
+
+
+    @GetMapping("/get/all/{value}")
+    public ResponseEntity<List<PostGetResponse>> getAllPosts(@PathVariable DateStatus value) {
+        return ResponseEntity.ok(postService.getAllPost(value).stream().map(PostGetResponse::toResponse).toList());
+    }
+
+    @GetMapping("/get/ready/{value}")
+    public ResponseEntity<List<PostGetResponse>> getReadyPosts(@PathVariable DateStatus value) {
+        return ResponseEntity.ok(postService.getSpecificPosts(value, RegisterStatus.REGISTER_READY).stream().map(PostGetResponse::toResponse).toList());
+    }
+
+    @GetMapping("/get/success/{value}")
+    public ResponseEntity<List<PostGetResponse>> getSuccessPosts(@PathVariable DateStatus value) {
+        return ResponseEntity.ok(postService.getSpecificPosts(value, RegisterStatus.REGISTER_SUCCESS).stream().map(PostGetResponse::toResponse).toList());
+    }
+
+    @GetMapping("/get/failed/{value}")
+    public ResponseEntity<List<PostGetResponse>> getFailedPosts(@PathVariable DateStatus value) {
+        return ResponseEntity.ok(postService.getSpecificPosts(value, RegisterStatus.REGISTER_FAILED).stream().map(PostGetResponse::toResponse).toList());
+    }
+
+
 }

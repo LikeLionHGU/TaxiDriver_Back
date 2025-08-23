@@ -14,6 +14,6 @@ import java.util.List;
 @Builder
 public class PostCheckResponse {
 
-    private int isLogin;
+    private Integer isLogin;
     private List<Post> posts;
 }
