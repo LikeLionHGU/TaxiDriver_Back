@@ -34,6 +34,7 @@ public class Post extends BaseEntity {
     private String fishStatus;
     private String salesMethod;
     private Integer reservePrice;
+    private String origin;
 
     private RegisterStatus registrationStatus;
     private AuctionStatus auctionStatus;

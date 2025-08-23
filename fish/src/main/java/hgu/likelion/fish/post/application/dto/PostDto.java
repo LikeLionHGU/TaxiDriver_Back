@@ -24,6 +24,7 @@ public class PostDto {
     private String name;
     private Integer fishCount;
     private String fishWeight;
+
     private String fishStatus;
     private String salesMethod;
     private Integer reservePrice;
@@ -109,6 +110,21 @@ public class PostDto {
                 .auctionStatus(post.getAuctionStatus())
                 .registeredDate(post.getRegDate())
                 .startedAt(post.getStartedAt())
+                .build();
+    }
+
+    public static PostDto toGetOneResponse(Post post) {
+        return PostDto.builder()
+                .id(post.getId())
+                .name(post.getName())
+                .origin(post.getOrigin())
+                .seller(UserDto.toPostGetResponse(post.getSeller()))
+                .registeredDate(post.getRegDate())
+                .fishCount(post.getFishCount())
+                .fishWeight(post.getFishWeight())
+                .salesMethod(post.getSalesMethod())
+                .triggerAt(post.getTriggerAt())
+                .reservePrice(post.getReservePrice())
                 .build();
     }
 

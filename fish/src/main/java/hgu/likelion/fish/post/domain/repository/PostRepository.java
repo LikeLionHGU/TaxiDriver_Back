@@ -19,6 +19,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findAllByRegDateAfterAndRegistrationStatus(LocalDateTime from, RegisterStatus status);
 
     List<Post> findAllByRegistrationStatus(RegisterStatus status);
+    List<Post> findAllByRegistrationStatusAndAuctionStatus(RegisterStatus registerStatus, AuctionStatus auctionStatus);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
