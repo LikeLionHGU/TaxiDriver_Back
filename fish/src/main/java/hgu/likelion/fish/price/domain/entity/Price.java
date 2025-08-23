@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -19,4 +21,7 @@ public class Price extends BaseEntity {
     private String name;
     private Integer count;
     private Double average;
+    private Double highestPrice;
+    private Double lowestPrice;
+    private LocalDateTime date;
 }

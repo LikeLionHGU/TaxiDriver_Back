@@ -32,14 +32,16 @@ public class PostDto {
     private String commentBySeller;
     private String aiEvaluation;
     private LocalDateTime registeredDate;
+    private LocalDateTime startedAt;
+
 
 
     private UserDto seller;
 
+
     private String origin;
     private List<String> urls;
 
-    private LocalDateTime regDate;
 
     public static PostDto from(Post post, List<String> urls) {
         return PostDto.builder()
@@ -88,6 +90,23 @@ public class PostDto {
                 .fishWeight(post.getFishWeight())
                 .registrationStatus(post.getRegistrationStatus())
                 .aiEvaluation(post.getAiEvaluation())
+                .build();
+    }
+
+    public static PostDto toAuctionResponse(Post post) {
+        return PostDto.builder()
+                .id(post.getId())
+                .name(post.getName())
+                .reservePrice(post.getReservePrice())
+                .fishCount(post.getFishCount())
+                .fishStatus(post.getFishStatus())
+                .fishWeight(post.getFishWeight())
+                .reservePrice(post.getReservePrice())
+                .salesMethod(post.getSalesMethod())
+                .seller(UserDto.toPostGetResponse(post.getSeller()))
+                .auctionStatus(post.getAuctionStatus())
+                .registeredDate(post.getRegDate())
+                .startedAt(post.getStartedAt())
                 .build();
     }
 

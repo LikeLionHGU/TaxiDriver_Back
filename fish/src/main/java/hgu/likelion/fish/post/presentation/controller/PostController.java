@@ -9,6 +9,7 @@ import hgu.likelion.fish.post.application.dto.PostDto;
 import hgu.likelion.fish.post.application.service.PostService;
 import hgu.likelion.fish.post.presentation.request.PostInfoRequest;
 import hgu.likelion.fish.post.presentation.response.PostAddResponse;
+import hgu.likelion.fish.post.presentation.response.PostAuctionResponse;
 import hgu.likelion.fish.post.presentation.response.PostCheckResponse;
 import hgu.likelion.fish.post.presentation.response.PostGetResponse;
 import hgu.likelion.fish.user.application.service.UserService;
@@ -16,6 +17,7 @@ import hgu.likelion.fish.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -95,6 +97,21 @@ public class PostController {
     @GetMapping("/check/failed/{value}")
     public ResponseEntity<List<PostCheckResponse>> getFailedPostChecks(@PathVariable DateStatus value) {
         return ResponseEntity.ok(postService.getSpecificPostChecks(value, RegisterStatus.REGISTER_FAILED).stream().map(PostCheckResponse::from).toList());
+    }
+
+
+    @GetMapping("/get/auction/all")
+    public ResponseEntity<List<PostAuctionResponse>> getAllAuctionPosts() {
+
+        return ResponseEntity.ok(postService.getAllAuctionPosts().stream().map(PostAuctionResponse::toAuctionResponse).toList());
+    }
+
+    // 등록 상태 업데이트
+    // 허락 / 거절
+    // 추후 코드 수정 필요
+    @PostMapping("/update/register/status/{value}/{id}")
+    public ResponseEntity<Boolean> updateRegisterStatus(@PathVariable Boolean value, @PathVariable Long id) {
+        return ResponseEntity.ok(postService.updateRegisterStatus(value, id));
     }
 
 }
