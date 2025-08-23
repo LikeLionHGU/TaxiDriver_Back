@@ -28,6 +28,7 @@ public class User extends BaseEntity {
     private String companyName;
     private String email;
     private String name;
+    private String location;
 
     // ★ Enum 컬렉션으로 권한 관리
     @ElementCollection(fetch = FetchType.EAGER)
