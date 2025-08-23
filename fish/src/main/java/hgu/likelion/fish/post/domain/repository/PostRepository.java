@@ -10,7 +10,6 @@ import java.util.List;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    List<Post> findAllByRegistrationStatus(String status);
     List<Post> findAllByRegDateAfter(LocalDateTime from);
 
     List<Post> findAllByRegDateAfterAndRegistrationStatus(LocalDateTime from, RegisterStatus status);
