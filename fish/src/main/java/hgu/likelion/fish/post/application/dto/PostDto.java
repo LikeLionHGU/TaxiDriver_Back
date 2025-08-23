@@ -1,13 +1,17 @@
 package hgu.likelion.fish.post.application.dto;
 
+import hgu.likelion.fish.commons.entity.AuctionStatus;
+import hgu.likelion.fish.commons.entity.RegisterStatus;
 import hgu.likelion.fish.post.domain.entity.Post;
 import hgu.likelion.fish.post.presentation.request.PostInfoRequest;
+import hgu.likelion.fish.user.application.dto.UserDto;
 import hgu.likelion.fish.user.domain.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -18,23 +22,26 @@ public class PostDto {
 
     private Long id;
     private String name;
-    private int fishCount;
+    private Integer fishCount;
     private String fishWeight;
     private String fishStatus;
     private String salesMethod;
-    private int reservePrice;
-    private String registrationStatus;
-    private String auctionStatus;
+    private Integer reservePrice;
+    private RegisterStatus registrationStatus;
+    private AuctionStatus auctionStatus;
     private String commentBySeller;
     private String aiEvaluation;
+    private LocalDateTime registeredDate;
 
-    private Long sellerId;
-    private Long buyerId;
+
+    private UserDto seller;
 
     private String sellerName;
     private String sellerCompany;
     private String origin;
     private List<String> urls;
+
+    private LocalDateTime regDate;
 
     public static PostDto from(Post post, List<String> urls) {
         return PostDto.builder()
@@ -45,7 +52,7 @@ public class PostDto {
                 .fishStatus(post.getFishStatus())
                 .salesMethod(post.getSalesMethod())
                 .reservePrice(post.getReservePrice())
-                .buyerId(post.getBuyerId())
+                .seller(UserDto.toPostGetResponse(post.getSeller()))
                 .urls(urls)
                 .build();
     }
@@ -71,6 +78,18 @@ public class PostDto {
                 .fishStatus(postInfoRequest.getFishStatus())
                 .salesMethod(postInfoRequest.getSalesMethod())
                 .reservePrice(postInfoRequest.getReservePrice())
+                .build();
+    }
+
+    public static PostDto toGetResponse(Post post) {
+        return PostDto.builder()
+                .id(post.getId())
+                .name(post.getName())
+                .seller(UserDto.toPostGetResponse(post.getSeller()))
+                .registrationStatus(post.getRegistrationStatus())
+                .fishCount(post.getFishCount())
+                .fishWeight(post.getFishWeight())
+                .registeredDate(post.getRegDate())
                 .build();
     }
 

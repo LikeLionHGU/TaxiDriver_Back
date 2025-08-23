@@ -2,11 +2,13 @@ package hgu.likelion.fish.user.domain.entity;
 
 import hgu.likelion.fish.commons.entity.BaseEntity;
 import hgu.likelion.fish.commons.login.config.Role;
+import hgu.likelion.fish.post.domain.entity.Post;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -29,6 +31,14 @@ public class User extends BaseEntity {
     private String origin;
     private String email;
     private String name;
+    private String location;
+
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
+    private List<Post> postSellList;
+
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL)
+    private List<Post> postBuyList;
+
 
     // ★ Enum 컬렉션으로 권한 관리
     @ElementCollection(fetch = FetchType.EAGER)

@@ -1,5 +1,7 @@
 package hgu.likelion.fish.post.application.service;
 
+import hgu.likelion.fish.commons.entity.DateStatus;
+import hgu.likelion.fish.commons.entity.RegisterStatus;
 import hgu.likelion.fish.commons.image.entity.Image;
 import hgu.likelion.fish.commons.image.service.S3Service;
 import hgu.likelion.fish.post.application.dto.PostDto;
@@ -11,9 +13,11 @@ import hgu.likelion.fish.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +35,7 @@ public class PostService {
     @Value("${cloud.aws.region.static}")
     private String region;
 
+    @Transactional
     public PostDto savePost(PostDto postDto, MultipartFile[] files, String dirName, User user) throws IOException {
         List<Image> images = new ArrayList<>();
         for (MultipartFile file : files) {
@@ -88,4 +93,62 @@ public class PostService {
     private String generateImageUrl(String storedFileName) {
         return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + storedFileName;
     }
+
+    @Transactional
+    public List<PostDto> getAllPost(DateStatus status) {
+
+        List<Post> postList;
+
+        if(status.equals(DateStatus.ALL)) {
+            var from = LocalDateTime.now();
+            postList = postRepository.findAllByRegDateAfter(from);
+
+        } else if(status.equals(DateStatus.RECENT_1WEEK)) {
+            var from = LocalDateTime.now().minusDays(7);
+            postList = postRepository.findAllByRegDateAfter(from);
+
+        } else if(status.equals(DateStatus.RECENT_1MONTH)) {
+            var from = LocalDateTime.now().minusDays(30);
+            postList = postRepository.findAllByRegDateAfter(from);
+
+        } else if(status.equals(DateStatus.RECENT_3MONTH)) {
+            var from = LocalDateTime.now().minusDays(90);
+            postList = postRepository.findAllByRegDateAfter(from);
+        } else {
+            var from = LocalDateTime.now().minusDays(180);
+            postList = postRepository.findAllByRegDateAfter(from);
+        }
+
+        return postList.stream().map(PostDto::toGetResponse).toList();
+    }
+
+    @Transactional
+    public List<PostDto> getSpecificPosts(DateStatus status, RegisterStatus registerStatus) {
+        List<Post> postList;
+
+        if(status.equals(DateStatus.ALL)) {
+            var from = LocalDateTime.now();
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
+
+        } else if(status.equals(DateStatus.RECENT_1WEEK)) {
+            var from = LocalDateTime.now().minusDays(7);
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
+
+        } else if(status.equals(DateStatus.RECENT_1MONTH)) {
+            var from = LocalDateTime.now().minusDays(30);
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
+
+        } else if(status.equals(DateStatus.RECENT_3MONTH)) {
+            var from = LocalDateTime.now().minusDays(90);
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
+        } else {
+            var from = LocalDateTime.now().minusDays(180);
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
+        }
+
+        return postList.stream().map(PostDto::toGetResponse).toList();
+    }
+
+
+
 }

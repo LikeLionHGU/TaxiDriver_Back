@@ -12,7 +12,7 @@ public class PostInfoRequest {
     private String name;
     private String fishStatus;
     private String salesMethod;
-    private int fishCount;
+    private Integer fishCount;
     private String fishWeight;
-    private int reservePrice;
+    private Integer reservePrice;
 }
