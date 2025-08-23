@@ -36,8 +36,6 @@ public class PostDto {
 
     private UserDto seller;
 
-    private String sellerName;
-    private String sellerCompany;
     private String origin;
     private List<String> urls;
 
@@ -54,19 +52,6 @@ public class PostDto {
                 .reservePrice(post.getReservePrice())
                 .seller(UserDto.toPostGetResponse(post.getSeller()))
                 .urls(urls)
-                .build();
-    }
-
-    public static PostDto from(Post post, User user) {
-        return PostDto.builder()
-                .name(post.getName())
-                .origin(user.getOrigin())
-                .fishWeight(post.getFishWeight())
-                .aiEvaluation(post.getAiEvaluation())
-                .reservePrice(post.getReservePrice())
-                .sellerName(user.getName())
-                .sellerCompany(user.getCompanyName())
-                .registrationStatus(post.getRegistrationStatus())
                 .build();
     }
 
@@ -90,6 +75,19 @@ public class PostDto {
                 .fishCount(post.getFishCount())
                 .fishWeight(post.getFishWeight())
                 .registeredDate(post.getRegDate())
+                .build();
+    }
+
+    public static PostDto from(Post post) {
+        return PostDto.builder()
+                .id(post.getId())
+                .name(post.getName())
+                .seller(UserDto.toPostGetResponse(post.getSeller()))
+                .registrationStatus(post.getRegistrationStatus())
+                .fishCount(post.getFishCount())
+                .fishWeight(post.getFishWeight())
+                .registrationStatus(post.getRegistrationStatus())
+                .aiEvaluation(post.getAiEvaluation())
                 .build();
     }
 
