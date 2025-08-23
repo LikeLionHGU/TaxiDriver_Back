@@ -1,5 +1,8 @@
 package hgu.likelion.fish.post.presentation.controller;
 
+import hgu.likelion.fish.commons.entity.AuctionStatus;
+import hgu.likelion.fish.commons.entity.DateStatus;
+import hgu.likelion.fish.commons.entity.RegisterStatus;
 import hgu.likelion.fish.commons.image.service.S3Service;
 import hgu.likelion.fish.commons.jwt.MyPrincipal;
 import hgu.likelion.fish.post.application.dto.PostDto;
@@ -7,6 +10,7 @@ import hgu.likelion.fish.post.application.service.PostService;
 import hgu.likelion.fish.post.presentation.request.PostInfoRequest;
 import hgu.likelion.fish.post.presentation.response.PostAddResponse;
 import hgu.likelion.fish.post.presentation.response.PostCheckResponse;
+import hgu.likelion.fish.post.presentation.response.PostGetResponse;
 import hgu.likelion.fish.user.application.service.UserService;
 import hgu.likelion.fish.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +39,7 @@ public class PostController {
         PostAddResponse response = new PostAddResponse();
 
         try{
-            String userId = (String) principal.getUserId();
+            String userId = principal.getUserId();
             if (userId == null) {
                 response.setIsLogin(0);
                 response.setIsSuccess(0);
@@ -58,18 +63,6 @@ public class PostController {
         }
     }
 
-//    @GetMapping("/check")
-//    public ResponseEntity<PostCheckResponse> getAllPostCheck(
-//            @AuthenticationPrincipal MyPrincipal principal,
-//            @RequestParam int category) {
-//        PostCheckResponse response = new PostCheckResponse();
-//
-//        try{
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 
     private int loginOrNot(@AuthenticationPrincipal MyPrincipal principal) {
         String userId = (String) principal.getUserId();
@@ -78,4 +71,28 @@ public class PostController {
         }
         return 1;
     }
+
+
+
+    @GetMapping("/get/all/{value}")
+    public ResponseEntity<List<PostGetResponse>> getAllPosts(@PathVariable DateStatus value) {
+        return ResponseEntity.ok(postService.getAllPost(value).stream().map(PostGetResponse::toResponse).toList());
+    }
+
+    @GetMapping("/get/ready/{value}")
+    public ResponseEntity<List<PostGetResponse>> getReadyPosts(@PathVariable DateStatus value) {
+        return ResponseEntity.ok(postService.getSpecificPosts(value, RegisterStatus.REGISTER_READY).stream().map(PostGetResponse::toResponse).toList());
+    }
+
+    @GetMapping("/get/success/{value}")
+    public ResponseEntity<List<PostGetResponse>> getSuccessPosts(@PathVariable DateStatus value) {
+        return ResponseEntity.ok(postService.getSpecificPosts(value, RegisterStatus.REGISTER_SUCCESS).stream().map(PostGetResponse::toResponse).toList());
+    }
+
+    @GetMapping("/get/failed/{value}")
+    public ResponseEntity<List<PostGetResponse>> getFailedPosts(@PathVariable DateStatus value) {
+        return ResponseEntity.ok(postService.getSpecificPosts(value, RegisterStatus.REGISTER_FAILED).stream().map(PostGetResponse::toResponse).toList());
+    }
+
+
 }

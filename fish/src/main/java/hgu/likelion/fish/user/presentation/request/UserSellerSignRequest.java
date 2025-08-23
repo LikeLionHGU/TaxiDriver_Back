@@ -1,14 +1,12 @@
 package hgu.likelion.fish.user.presentation.request;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 
 public class UserSellerSignRequest {
     private String personName;

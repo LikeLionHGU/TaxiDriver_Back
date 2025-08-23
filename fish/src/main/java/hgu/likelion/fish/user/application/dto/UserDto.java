@@ -1,18 +1,17 @@
 package hgu.likelion.fish.user.application.dto;
 
 
+import hgu.likelion.fish.user.domain.entity.User;
 import hgu.likelion.fish.user.presentation.request.UserAdminSignRequest;
 import hgu.likelion.fish.user.presentation.request.UserBuyerSignRequest;
 import hgu.likelion.fish.user.presentation.request.UserSellerSignRequest;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserDto {
     private String id;
     private int userStatus;
@@ -51,6 +50,13 @@ public class UserDto {
                 .location(request.getLocation())
                 .name(request.getPersonName())
                 .companyName(request.getCompanyName())
+                .build();
+    }
+
+    public static UserDto toPostGetResponse(User user) {
+        return UserDto.builder()
+                .id(user.getId())
+                .name(user.getName())
                 .build();
     }
 
