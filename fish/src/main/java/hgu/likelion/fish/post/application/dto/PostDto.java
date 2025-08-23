@@ -2,6 +2,7 @@ package hgu.likelion.fish.post.application.dto;
 
 import hgu.likelion.fish.post.domain.entity.Post;
 import hgu.likelion.fish.post.presentation.request.PostInfoRequest;
+import hgu.likelion.fish.user.domain.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,6 +31,9 @@ public class PostDto {
     private Long sellerId;
     private Long buyerId;
 
+    private String sellerName;
+    private String sellerCompany;
+    private String origin;
     private List<String> urls;
 
     public static PostDto from(Post post, List<String> urls) {
@@ -46,6 +50,19 @@ public class PostDto {
                 .build();
     }
 
+    public static PostDto from(Post post, User user) {
+        return PostDto.builder()
+                .name(post.getName())
+                .origin(user.getOrigin())
+                .fishWeight(post.getFishWeight())
+                .aiEvaluation(post.getAiEvaluation())
+                .reservePrice(post.getReservePrice())
+                .sellerName(user.getName())
+                .sellerCompany(user.getCompanyName())
+                .registrationStatus(post.getRegistrationStatus())
+                .build();
+    }
+
     public static PostDto fromInfoAdd(PostInfoRequest postInfoRequest) {
         return PostDto.builder()
                 .name(postInfoRequest.getName())
@@ -56,4 +73,5 @@ public class PostDto {
                 .reservePrice(postInfoRequest.getReservePrice())
                 .build();
     }
+
 }

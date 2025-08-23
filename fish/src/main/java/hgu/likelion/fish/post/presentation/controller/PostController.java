@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,18 +59,42 @@ public class PostController {
         }
     }
 
-//    @GetMapping("/check")
-//    public ResponseEntity<PostCheckResponse> getAllPostCheck(
-//            @AuthenticationPrincipal MyPrincipal principal,
-//            @RequestParam int category) {
-//        PostCheckResponse response = new PostCheckResponse();
-//
-//        try{
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    @GetMapping("/check/status")
+    public ResponseEntity<PostCheckResponse> getPostCheck(
+            @AuthenticationPrincipal MyPrincipal principal,
+            @RequestParam String status) {
+        PostCheckResponse response = new PostCheckResponse();
+
+        try{
+            response.setIsLogin(loginOrNot(principal));
+
+            List<PostDto> postDtoList = postService.getPostCheck(status);
+            response.setPostDtoList(postDtoList);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            response.setPostDtoList(null);
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @GetMapping("/check/all")
+    public ResponseEntity<PostCheckResponse> getAllPostCheck(
+            @AuthenticationPrincipal MyPrincipal principal) {
+        PostCheckResponse response = new PostCheckResponse();
+
+        try{
+            response.setIsLogin(loginOrNot(principal));
+
+            List<PostDto> postDtoList = postService.getAllPostCheck();
+            response.setPostDtoList(postDtoList);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            response.setPostDtoList(null);
+            return ResponseEntity.ok(response);
+        }
+    }
 
     private int loginOrNot(@AuthenticationPrincipal MyPrincipal principal) {
         String userId = (String) principal.getUserId();

@@ -5,7 +5,9 @@ import hgu.likelion.fish.commons.image.service.S3Service;
 import hgu.likelion.fish.post.application.dto.PostDto;
 import hgu.likelion.fish.post.domain.entity.Post;
 import hgu.likelion.fish.post.domain.repository.PostRepository;
+import hgu.likelion.fish.user.application.service.UserService;
 import hgu.likelion.fish.user.domain.entity.User;
+import hgu.likelion.fish.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostService {
 
+    private final UserRepository userRepository;
     private final PostRepository postRepository;
     private S3Service s3Service;
 
@@ -48,6 +51,38 @@ public class PostService {
         }
 
         return PostDto.from(post, urls);
+    }
+
+    public List<PostDto> getPostCheck(String status) {
+        List<Post> posts;
+        posts = postRepository.findAllByRegistrationStatus(status);
+
+        List<PostDto> postDtoList = new ArrayList<>();
+
+        for (Post post : posts) {
+            Long userId = post.getSellerId();
+            User user = userRepository.findUserByUserId(String.valueOf(userId));
+            PostDto postDto = PostDto.from(post, user);
+            postDtoList.add(postDto);
+        }
+
+        return postDtoList;
+    }
+
+    public List<PostDto> getAllPostCheck() {
+        List<Post> posts;
+        posts = postRepository.findAll();
+
+        List<PostDto> postDtoList = new ArrayList<>();
+
+        for (Post post : posts) {
+            Long userId = post.getSellerId();
+            User user = userRepository.findUserByUserId(String.valueOf(userId));
+            PostDto postDto = PostDto.from(post, user);
+            postDtoList.add(postDto);
+        }
+
+        return postDtoList;
     }
 
     private String generateImageUrl(String storedFileName) {

@@ -1,5 +1,6 @@
 package hgu.likelion.fish.post.presentation.response;
 
+import hgu.likelion.fish.post.application.dto.PostDto;
 import hgu.likelion.fish.post.domain.entity.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,5 +16,5 @@ import java.util.List;
 public class PostCheckResponse {
 
     private int isLogin;
-    private List<Post> posts;
+    private List<PostDto> postDtoList;
 }
