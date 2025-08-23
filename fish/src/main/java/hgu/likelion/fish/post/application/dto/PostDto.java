@@ -5,6 +5,7 @@ import hgu.likelion.fish.commons.entity.RegisterStatus;
 import hgu.likelion.fish.post.domain.entity.Post;
 import hgu.likelion.fish.post.presentation.request.PostInfoRequest;
 import hgu.likelion.fish.user.application.dto.UserDto;
+import hgu.likelion.fish.user.domain.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +36,9 @@ public class PostDto {
 
     private UserDto seller;
 
+    private String sellerName;
+    private String sellerCompany;
+    private String origin;
     private List<String> urls;
 
     private LocalDateTime regDate;
@@ -50,6 +54,19 @@ public class PostDto {
                 .reservePrice(post.getReservePrice())
                 .seller(UserDto.toPostGetResponse(post.getSeller()))
                 .urls(urls)
+                .build();
+    }
+
+    public static PostDto from(Post post, User user) {
+        return PostDto.builder()
+                .name(post.getName())
+                .origin(user.getOrigin())
+                .fishWeight(post.getFishWeight())
+                .aiEvaluation(post.getAiEvaluation())
+                .reservePrice(post.getReservePrice())
+                .sellerName(user.getName())
+                .sellerCompany(user.getCompanyName())
+                .registrationStatus(post.getRegistrationStatus())
                 .build();
     }
 
@@ -75,4 +92,5 @@ public class PostDto {
                 .registeredDate(post.getRegDate())
                 .build();
     }
+
 }

@@ -28,6 +28,7 @@ public class User extends BaseEntity {
     private int totalBuyPrice;
     private int totalSellPrice;
     private String companyName;
+    private String origin;
     private String email;
     private String name;
     private String location;

@@ -1,5 +1,6 @@
 package hgu.likelion.fish.post.presentation.response;
 
+import hgu.likelion.fish.post.application.dto.PostDto;
 import hgu.likelion.fish.post.domain.entity.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
