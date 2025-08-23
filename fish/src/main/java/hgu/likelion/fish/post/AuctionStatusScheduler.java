@@ -1,0 +1,46 @@
+package hgu.likelion.fish.post;
+
+import hgu.likelion.fish.commons.entity.AuctionStatus;
+import hgu.likelion.fish.post.domain.repository.PostRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+
+@EnableScheduling
+@Service
+@RequiredArgsConstructor
+public class AuctionStatusScheduler {
+
+    private final PostRepository repo;
+
+    // 예: 30초마다 검사
+    @Scheduled(fixedDelay = 30_000)
+    @Transactional
+    public void tick() {
+        LocalDateTime now = LocalDateTime.now();
+
+        // 1) 등록 +10분 경과 → STARTED
+
+        // 10분 경과 → STARTED
+        int s1 = repo.promoteToStarted(
+                AuctionStatus.AUCTION_READY,
+                AuctionStatus.AUCTION_CURRENT,
+                now.minusMinutes(10),
+                now
+        );
+
+        // 25분 경과 → COMPLETED
+        int s2 = repo.promoteToCompleted(
+                AuctionStatus.AUCTION_CURRENT,
+                AuctionStatus.AUCTION_FINISH,
+                now.minusMinutes(25)
+        );
+
+        // 필요시 로그
+        // log.info("started={}, completed={}", started, completed);
+    }
+}

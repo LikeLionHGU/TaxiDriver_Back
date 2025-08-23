@@ -58,33 +58,6 @@ public class PostService {
         return PostDto.from(post, urls);
     }
 
-//    public List<PostDto> getPostCheck(String status) {
-//        List<Post> posts;
-//        posts = postRepository.findAllByRegistrationStatus(status);
-//        List<PostDto> postDtoList = new ArrayList<>();
-//
-//        for (Post post : posts) {
-//            User user = post.getSeller();
-//            PostDto postDto = PostDto.from(post, user);
-//            postDtoList.add(postDto);
-//        }
-//
-//        return postDtoList;
-//    }
-//
-//    public List<PostDto> getAllPostCheck() {
-//        List<Post> posts;
-//        posts = postRepository.findAll();
-//        List<PostDto> postDtoList = new ArrayList<>();
-//
-//        for (Post post : posts) {
-//            User user = post.getSeller();
-//            PostDto postDto = PostDto.from(post, user);
-//            postDtoList.add(postDto);
-//        }
-//
-//        return postDtoList;
-//    }
 
     private String generateImageUrl(String storedFileName) {
         return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + storedFileName;
@@ -191,6 +164,34 @@ public class PostService {
         }
 
         return postList.stream().map(PostDto::from).toList();
+    }
+
+    @Transactional
+    public List<PostDto> getAllAuctionPosts() {
+        return postRepository.findAllByRegistrationStatus(RegisterStatus.REGISTER_SUCCESS).stream().map(PostDto::toAuctionResponse).toList();
+    }
+
+    @Transactional
+    public Boolean updateRegisterStatus(Boolean value, Long id) {
+
+        try {
+            Post post = postRepository.findById(id).orElse(null);
+
+            if(value) {
+                post.setRegistrationStatus(RegisterStatus.REGISTER_SUCCESS);
+                post.setTriggerAt(LocalDateTime.now());
+                postRepository.save(post);
+            } else {
+                post.setRegistrationStatus(RegisterStatus.REGISTER_FAILED);
+                postRepository.save(post);
+            }
+
+            return true;
+
+        } catch (Exception e) {
+            return false;
+        }
+
     }
 
 
