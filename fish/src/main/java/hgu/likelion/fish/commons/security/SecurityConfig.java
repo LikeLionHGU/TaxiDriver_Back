@@ -42,6 +42,15 @@ public class SecurityConfig {
 
         // 1) 쿠키에 XSRF-TOKEN 발급 (HttpOnly=false → 프론트/포스트맨에서 읽어 헤더로 보낼 수 있음)
         var repo = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        repo.setCookieCustomizer(c -> {
+            c.path("/");        // 쿠키가 모든 경로에 붙게
+            // 개발(HTTP)이라면:
+            c.sameSite("Lax");
+            c.secure(false);
+            // 운영(HTTPS + 다른 오리진)이라면 위 두 줄 대신:
+            // c.sameSite("None");
+            // c.secure(true);
+        });
 
         // 2) 헤더에는 "마스킹되지 않은(raw) 토큰"을 기대하도록 설정
         var requestHandler = new CsrfTokenRequestAttributeHandler();
@@ -59,8 +68,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login/oauth2/**", "/api/v1/oauth2/google").permitAll()
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers("/test").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/temp", "/test", "/user/update").permitAll()
+                        .requestMatchers("/user/signin/admin", "/user/signin/buyer", "/user/signin/seller").hasRole("USER")
                         .requestMatchers("/post/add").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -80,29 +90,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-//    @Bean
-//    SecurityFilterChain filterChain(HttpSecurity http, JwtCookieAuthFilter jwtCookieAuthFilter) throws Exception {
-//        http
-//                .cors(c -> c.configurationSource(corsConfigurationSource()))
-//                .csrf(csrf -> csrf
-//                                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-//                        // 필요 시 일부 엔드포인트만 예외
-////                         .ignoringRequestMatchers("/temp")
-//                )
-//                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ★ 무상태
-//                .httpBasic(h -> h.disable())
-//                .formLogin(f -> f.disable())
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/login/oauth2/**", "/api/v1/oauth2/google").permitAll()
-//                        .requestMatchers("/temp").permitAll()
-//                        .requestMatchers("/test").permitAll()
-//                        .requestMatchers("/user/update").permitAll()
-//                        .anyRequest().authenticated()
-//                )
-//                .addFilterBefore(jwtCookieAuthFilter, UsernamePasswordAuthenticationFilter.class); // ★ 쿠키필터
-//
-//        return http.build();
-//    }
 
 
     @Bean

@@ -9,6 +9,7 @@ import hgu.likelion.fish.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -28,6 +29,7 @@ public class PostService {
     @Value("${cloud.aws.region.static}")
     private String region;
 
+    @Transactional
     public PostDto savePost(PostDto postDto, MultipartFile[] files, String dirName, User user) throws IOException {
         List<Image> images = new ArrayList<>();
         for (MultipartFile file : files) {
@@ -53,4 +55,14 @@ public class PostService {
     private String generateImageUrl(String storedFileName) {
         return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + storedFileName;
     }
+
+    @Transactional
+    public List<PostDto> getAllPost() {
+        List<Post> postList = postRepository.findAll();
+
+        return postList.stream().map(PostDto::toGetResponse).toList();
+    }
+
+
+
 }

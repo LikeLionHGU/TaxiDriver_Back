@@ -1,6 +1,8 @@
 package hgu.likelion.fish.post.domain.entity;
 
+import hgu.likelion.fish.commons.entity.AuctionStatus;
 import hgu.likelion.fish.commons.entity.BaseEntity;
+import hgu.likelion.fish.commons.entity.RegisterStatus;
 import hgu.likelion.fish.commons.image.entity.Image;
 import hgu.likelion.fish.post.application.dto.PostDto;
 import hgu.likelion.fish.user.domain.entity.User;
@@ -30,13 +32,19 @@ public class Post extends BaseEntity {
     private String fishStatus;
     private String salesMethod;
     private int reservePrice;
-    private String registrationStatus;
-    private String auctionStatus;
+
+    private RegisterStatus registrationStatus;
+    private AuctionStatus auctionStatus;
+
     private String commentBySeller;
     private String aiEvaluation;
 
-    private Long sellerId;
-    private Long buyerId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User buyer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User seller;
 
     @OneToMany(
             mappedBy = "post",
@@ -55,7 +63,7 @@ public class Post extends BaseEntity {
                 .salesMethod(postDto.getSalesMethod())
                 .reservePrice(postDto.getReservePrice())
                 .images(images)
-                .buyerId(Long.valueOf(user.getId()))
+                .seller(user)
                 .build();
     }
 
