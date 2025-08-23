@@ -58,37 +58,33 @@ public class PostService {
         return PostDto.from(post, urls);
     }
 
-    public List<PostDto> getPostCheck(String status) {
-        List<Post> posts;
-        posts = postRepository.findAllByRegistrationStatus(status);
-
-        List<PostDto> postDtoList = new ArrayList<>();
-
-        for (Post post : posts) {
-            Long userId = post.getSellerId();
-            User user = userRepository.findUserByUserId(String.valueOf(userId));
-            PostDto postDto = PostDto.from(post, user);
-            postDtoList.add(postDto);
-        }
-
-        return postDtoList;
-    }
-
-    public List<PostDto> getAllPostCheck() {
-        List<Post> posts;
-        posts = postRepository.findAll();
-
-        List<PostDto> postDtoList = new ArrayList<>();
-
-        for (Post post : posts) {
-            Long userId = post.getSellerId();
-            User user = userRepository.findUserByUserId(String.valueOf(userId));
-            PostDto postDto = PostDto.from(post, user);
-            postDtoList.add(postDto);
-        }
-
-        return postDtoList;
-    }
+//    public List<PostDto> getPostCheck(String status) {
+//        List<Post> posts;
+//        posts = postRepository.findAllByRegistrationStatus(status);
+//        List<PostDto> postDtoList = new ArrayList<>();
+//
+//        for (Post post : posts) {
+//            User user = post.getSeller();
+//            PostDto postDto = PostDto.from(post, user);
+//            postDtoList.add(postDto);
+//        }
+//
+//        return postDtoList;
+//    }
+//
+//    public List<PostDto> getAllPostCheck() {
+//        List<Post> posts;
+//        posts = postRepository.findAll();
+//        List<PostDto> postDtoList = new ArrayList<>();
+//
+//        for (Post post : posts) {
+//            User user = post.getSeller();
+//            PostDto postDto = PostDto.from(post, user);
+//            postDtoList.add(postDto);
+//        }
+//
+//        return postDtoList;
+//    }
 
     private String generateImageUrl(String storedFileName) {
         return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + storedFileName;
@@ -147,6 +143,54 @@ public class PostService {
         }
 
         return postList.stream().map(PostDto::toGetResponse).toList();
+    }
+
+    public List<PostDto> getAllPostChecks(DateStatus status) {
+
+        List<Post> postList;
+
+        if(status.equals(DateStatus.ALL)) {
+            var from = LocalDateTime.now();
+            postList = postRepository.findAllByRegDateAfter(from);
+        } else if(status.equals(DateStatus.RECENT_1WEEK)) {
+            var from = LocalDateTime.now().minusDays(7);
+            postList = postRepository.findAllByRegDateAfter(from);
+        } else if(status.equals(DateStatus.RECENT_1MONTH)) {
+            var from = LocalDateTime.now().minusDays(30);
+            postList = postRepository.findAllByRegDateAfter(from);
+        } else if(status.equals(DateStatus.RECENT_3MONTH)) {
+            var from = LocalDateTime.now().minusDays(90);
+            postList = postRepository.findAllByRegDateAfter(from);
+        } else {
+            var from = LocalDateTime.now().minusDays(180);
+            postList = postRepository.findAllByRegDateAfter(from);
+        }
+
+        return postList.stream().map(PostDto::from).toList();
+    }
+
+    public List<PostDto> getSpecificPostChecks(DateStatus status, RegisterStatus registerStatus) {
+
+        List<Post> postList;
+
+        if(status.equals(DateStatus.ALL)) {
+            var from = LocalDateTime.now();
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
+        } else if(status.equals(DateStatus.RECENT_1WEEK)) {
+            var from = LocalDateTime.now().minusDays(7);
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
+        } else if(status.equals(DateStatus.RECENT_1MONTH)) {
+            var from = LocalDateTime.now().minusDays(30);
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
+        } else if(status.equals(DateStatus.RECENT_3MONTH)) {
+            var from = LocalDateTime.now().minusDays(90);
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
+        } else {
+            var from = LocalDateTime.now().minusDays(180);
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
+        }
+
+        return postList.stream().map(PostDto::from).toList();
     }
 
 
