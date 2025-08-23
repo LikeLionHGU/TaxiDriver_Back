@@ -57,18 +57,6 @@ public class PostDto {
                 .build();
     }
 
-    public static PostDto from(Post post, User user) {
-        return PostDto.builder()
-                .name(post.getName())
-                .origin(user.getOrigin())
-                .fishWeight(post.getFishWeight())
-                .aiEvaluation(post.getAiEvaluation())
-                .reservePrice(post.getReservePrice())
-                .seller(UserDto.toPostGetResponse(user))
-                .registrationStatus(post.getRegistrationStatus())
-                .build();
-    }
-
     public static PostDto fromInfoAdd(PostInfoRequest postInfoRequest) {
         return PostDto.builder()
                 .name(postInfoRequest.getName())
@@ -89,6 +77,19 @@ public class PostDto {
                 .fishCount(post.getFishCount())
                 .fishWeight(post.getFishWeight())
                 .registeredDate(post.getRegDate())
+                .build();
+    }
+
+    public static PostDto from(Post post) {
+        return PostDto.builder()
+                .id(post.getId())
+                .name(post.getName())
+                .seller(UserDto.toPostGetResponse(post.getSeller()))
+                .registrationStatus(post.getRegistrationStatus())
+                .fishCount(post.getFishCount())
+                .fishWeight(post.getFishWeight())
+                .registrationStatus(post.getRegistrationStatus())
+                .aiEvaluation(post.getAiEvaluation())
                 .build();
     }
 

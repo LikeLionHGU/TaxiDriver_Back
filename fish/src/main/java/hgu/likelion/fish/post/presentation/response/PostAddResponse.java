@@ -9,6 +9,5 @@ import lombok.*;
 @NoArgsConstructor
 public class PostAddResponse {
 
-    private Integer isLogin;
     private Integer isSuccess;
 }
