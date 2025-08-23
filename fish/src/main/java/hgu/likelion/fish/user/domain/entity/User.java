@@ -1,5 +1,6 @@
 package hgu.likelion.fish.user.domain.entity;
 
+import hgu.likelion.fish.auction.domain.entity.Auction;
 import hgu.likelion.fish.commons.entity.BaseEntity;
 import hgu.likelion.fish.commons.login.config.Role;
 import hgu.likelion.fish.post.domain.entity.Post;
@@ -53,5 +54,9 @@ public class User extends BaseEntity {
         if (roles == null) roles = new HashSet<>();
         roles.add(role);
     }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Auction auction;
+
 
 }
