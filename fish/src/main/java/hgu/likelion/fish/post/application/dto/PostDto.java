@@ -32,6 +32,7 @@ public class PostDto {
     private String commentBySeller;
     private String aiEvaluation;
     private LocalDateTime registeredDate;
+    private LocalDateTime triggerAt;
     private LocalDateTime startedAt;
 
 
@@ -101,6 +102,7 @@ public class PostDto {
                 .fishCount(post.getFishCount())
                 .fishStatus(post.getFishStatus())
                 .fishWeight(post.getFishWeight())
+                .triggerAt(post.getTriggerAt())
                 .reservePrice(post.getReservePrice())
                 .salesMethod(post.getSalesMethod())
                 .seller(UserDto.toPostGetResponse(post.getSeller()))

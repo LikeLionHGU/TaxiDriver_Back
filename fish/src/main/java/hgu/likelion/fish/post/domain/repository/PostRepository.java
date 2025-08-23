@@ -47,4 +47,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     int promoteToCompleted(@Param("started") AuctionStatus started,
                            @Param("completed") AuctionStatus completed,
                            @Param("twentyFiveMinLimit") LocalDateTime twentyFiveMinLimit);
+
+    Long countByRegistrationStatus(RegisterStatus status);
+    Long countByAuctionStatusAndRegistrationStatus(AuctionStatus status, RegisterStatus registerStatus);
 }

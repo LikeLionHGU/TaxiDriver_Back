@@ -1,5 +1,6 @@
 package hgu.likelion.fish.post.application.service;
 
+import hgu.likelion.fish.commons.entity.AuctionStatus;
 import hgu.likelion.fish.commons.entity.DateStatus;
 import hgu.likelion.fish.commons.entity.RegisterStatus;
 import hgu.likelion.fish.commons.image.entity.Image;
@@ -7,6 +8,8 @@ import hgu.likelion.fish.commons.image.service.S3Service;
 import hgu.likelion.fish.post.application.dto.PostDto;
 import hgu.likelion.fish.post.domain.entity.Post;
 import hgu.likelion.fish.post.domain.repository.PostRepository;
+import hgu.likelion.fish.post.presentation.response.PostAuctionListResponse;
+import hgu.likelion.fish.post.presentation.response.PostListResponse;
 import hgu.likelion.fish.user.application.service.UserService;
 import hgu.likelion.fish.user.domain.entity.User;
 import hgu.likelion.fish.user.domain.repository.UserRepository;
@@ -194,6 +197,26 @@ public class PostService {
 
     }
 
+    @Transactional
+    public PostListResponse getPostListNumber() {
+        Long totalCount = postRepository.count();
+        Long readyCount = postRepository.countByRegistrationStatus(RegisterStatus.REGISTER_READY);
+        Long approvedCount = postRepository.countByRegistrationStatus(RegisterStatus.REGISTER_SUCCESS);
+        Long rejectedCount = postRepository.countByRegistrationStatus(RegisterStatus.REGISTER_FAILED);
+
+
+        return PostListResponse.toResponse(totalCount, readyCount, approvedCount, rejectedCount);
+    }
+
+    @Transactional
+    public PostAuctionListResponse getPostAuctionListNumber() {
+        Long totalCount = postRepository.countByRegistrationStatus(RegisterStatus.REGISTER_SUCCESS);
+        Long readyCount = postRepository.countByAuctionStatusAndRegistrationStatus(AuctionStatus.AUCTION_READY, RegisterStatus.REGISTER_SUCCESS);
+        Long currentCount = postRepository.countByAuctionStatusAndRegistrationStatus(AuctionStatus.AUCTION_CURRENT, RegisterStatus.REGISTER_SUCCESS);
+        Long finishCount = postRepository.countByAuctionStatusAndRegistrationStatus(AuctionStatus.AUCTION_FINISH, RegisterStatus.REGISTER_SUCCESS);
+
+        return PostAuctionListResponse.toResponse(totalCount, readyCount, currentCount, finishCount);
+    }
 
 
 }

@@ -25,6 +25,7 @@ public class PostAuctionResponse {
     private Integer reservePrice;
     private AuctionStatus auctionStatus;
     private LocalDateTime registeredDate;
+    private LocalDateTime triggerAt;
     private LocalDateTime startedAt;
     private UserDto seller;
 
@@ -42,6 +43,7 @@ public class PostAuctionResponse {
                 .seller(postDto.getSeller())
                 .auctionStatus(postDto.getAuctionStatus())
                 .registeredDate(postDto.getRegisteredDate())
+                .triggerAt(postDto.getTriggerAt())
                 .startedAt(postDto.getStartedAt())
                 .build();
     }
