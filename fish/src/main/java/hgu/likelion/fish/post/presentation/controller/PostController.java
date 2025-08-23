@@ -56,6 +56,12 @@ public class PostController {
         }
     }
 
+    @GetMapping("/get/{id}")
+    public ResponseEntity<PostResponse> getPost(@PathVariable Long id) {
+        return ResponseEntity.ok(PostResponse.toGetOneResponse(postService.getPost(id)));
+    }
+
+
     // 전체 목록 가져옴
     @GetMapping("/get/list")
     public ResponseEntity<PostListResponse> getListPosts() {
@@ -121,19 +127,19 @@ public class PostController {
     @GetMapping("/get/auction/ready")
     public ResponseEntity<List<PostAuctionResponse>> getReadyAuctionPosts() {
 
-        return ResponseEntity.ok(postService.getAllAuctionPosts().stream().map(PostAuctionResponse::toAuctionResponse).toList());
+        return ResponseEntity.ok(postService.getSpecificAuctionPosts(AuctionStatus.AUCTION_READY).stream().map(PostAuctionResponse::toAuctionResponse).toList());
     }
 
     @GetMapping("/get/auction/current")
     public ResponseEntity<List<PostAuctionResponse>> getCurrentAuctionPosts() {
 
-        return ResponseEntity.ok(postService.getAllAuctionPosts().stream().map(PostAuctionResponse::toAuctionResponse).toList());
+        return ResponseEntity.ok(postService.getSpecificAuctionPosts(AuctionStatus.AUCTION_CURRENT).stream().map(PostAuctionResponse::toAuctionResponse).toList());
     }
 
     @GetMapping("/get/auction/finish")
     public ResponseEntity<List<PostAuctionResponse>> getFinishAuctionPosts() {
 
-        return ResponseEntity.ok(postService.getAllAuctionPosts().stream().map(PostAuctionResponse::toAuctionResponse).toList());
+        return ResponseEntity.ok(postService.getSpecificAuctionPosts(AuctionStatus.AUCTION_FINISH).stream().map(PostAuctionResponse::toAuctionResponse).toList());
     }
 
 

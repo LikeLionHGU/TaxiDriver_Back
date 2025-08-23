@@ -173,6 +173,10 @@ public class PostService {
     public List<PostDto> getAllAuctionPosts() {
         return postRepository.findAllByRegistrationStatus(RegisterStatus.REGISTER_SUCCESS).stream().map(PostDto::toAuctionResponse).toList();
     }
+    @Transactional
+    public List<PostDto> getSpecificAuctionPosts(AuctionStatus status) {
+        return postRepository.findAllByRegistrationStatusAndAuctionStatus(RegisterStatus.REGISTER_SUCCESS, status).stream().map(PostDto::toAuctionResponse).toList();
+    }
 
     @Transactional
     public Boolean updateRegisterStatus(Boolean value, Long id) {
@@ -216,6 +220,14 @@ public class PostService {
         Long finishCount = postRepository.countByAuctionStatusAndRegistrationStatus(AuctionStatus.AUCTION_FINISH, RegisterStatus.REGISTER_SUCCESS);
 
         return PostAuctionListResponse.toResponse(totalCount, readyCount, currentCount, finishCount);
+    }
+
+    @Transactional
+    public PostDto getPost(Long id) {
+        Post post = postRepository.findById(id).orElse(null);
+
+        assert post != null;
+        return PostDto.toGetOneResponse(post);
     }
 
 
