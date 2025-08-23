@@ -8,10 +8,7 @@ import hgu.likelion.fish.commons.jwt.MyPrincipal;
 import hgu.likelion.fish.post.application.dto.PostDto;
 import hgu.likelion.fish.post.application.service.PostService;
 import hgu.likelion.fish.post.presentation.request.PostInfoRequest;
-import hgu.likelion.fish.post.presentation.response.PostAddResponse;
-import hgu.likelion.fish.post.presentation.response.PostAuctionResponse;
-import hgu.likelion.fish.post.presentation.response.PostCheckResponse;
-import hgu.likelion.fish.post.presentation.response.PostGetResponse;
+import hgu.likelion.fish.post.presentation.response.*;
 import hgu.likelion.fish.user.application.service.UserService;
 import hgu.likelion.fish.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +56,20 @@ public class PostController {
         }
     }
 
+    // 전체 목록 가져옴
+    @GetMapping("/get/list")
+    public ResponseEntity<PostListResponse> getListPosts() {
+
+        return ResponseEntity.ok(postService.getPostListNumber());
+    }
+
+    @GetMapping("/get/auction/list")
+    public ResponseEntity<PostAuctionListResponse> getAuctionPostCount() {
+
+        return ResponseEntity.ok(postService.getPostAuctionListNumber());
+    }
+
+
     @GetMapping("/get/all/{value}")
     public ResponseEntity<List<PostGetResponse>> getAllPosts(@PathVariable DateStatus value) {
         return ResponseEntity.ok(postService.getAllPost(value).stream().map(PostGetResponse::toResponse).toList());
@@ -100,11 +111,32 @@ public class PostController {
     }
 
 
+
     @GetMapping("/get/auction/all")
     public ResponseEntity<List<PostAuctionResponse>> getAllAuctionPosts() {
 
         return ResponseEntity.ok(postService.getAllAuctionPosts().stream().map(PostAuctionResponse::toAuctionResponse).toList());
     }
+
+    @GetMapping("/get/auction/ready")
+    public ResponseEntity<List<PostAuctionResponse>> getReadyAuctionPosts() {
+
+        return ResponseEntity.ok(postService.getAllAuctionPosts().stream().map(PostAuctionResponse::toAuctionResponse).toList());
+    }
+
+    @GetMapping("/get/auction/current")
+    public ResponseEntity<List<PostAuctionResponse>> getCurrentAuctionPosts() {
+
+        return ResponseEntity.ok(postService.getAllAuctionPosts().stream().map(PostAuctionResponse::toAuctionResponse).toList());
+    }
+
+    @GetMapping("/get/auction/finish")
+    public ResponseEntity<List<PostAuctionResponse>> getFinishAuctionPosts() {
+
+        return ResponseEntity.ok(postService.getAllAuctionPosts().stream().map(PostAuctionResponse::toAuctionResponse).toList());
+    }
+
+
 
     // 등록 상태 업데이트
     // 허락 / 거절
