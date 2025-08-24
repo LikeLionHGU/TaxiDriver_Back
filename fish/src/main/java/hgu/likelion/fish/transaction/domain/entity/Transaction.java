@@ -21,17 +21,17 @@ public class Transaction extends BaseEntity {
     private Long id;
 
     private LocalDateTime winningDate;
-    private int winningPrice;
+    private Integer winningPrice;
 
     private LocalDateTime settlementDate;
-    private int settlementPrice;
+    private Integer settlementPrice;
     private String settlementStatus;
 
-    private double profitRate;
+    private Double profitRate;
     private String transactionCode;
 
     private LocalDateTime receiptDate;
-    private int receiptStatus;
+    private Integer receiptStatus;
     private String receiptLocation;
     private String message;
 

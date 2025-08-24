@@ -20,8 +20,10 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -45,11 +47,11 @@ public class SecurityConfig {
         repo.setCookieCustomizer(c -> {
             c.path("/");        // 쿠키가 모든 경로에 붙게
             // 개발(HTTP)이라면:
-            c.sameSite("Lax");
-            c.secure(false);
+//            c.sameSite("Lax");
+//            c.secure(false);
             // 운영(HTTPS + 다른 오리진)이라면 위 두 줄 대신:
-            // c.sameSite("None");
-            // c.secure(true);
+             c.sameSite("None");
+             c.secure(true);
         });
 
         // 2) 헤더에는 "마스킹되지 않은(raw) 토큰"을 기대하도록 설정
@@ -58,17 +60,19 @@ public class SecurityConfig {
 
         http
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(repo)
-                        .csrfTokenRequestHandler(requestHandler)   // ★ 핵심: raw 토큰을 받아들임
-                )
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(csrf -> csrf.disable())
+//                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sm -> {
+                    sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                    sm.sessionAuthenticationStrategy(new NullAuthenticatedSessionStrategy()); // ★ 회전 트리거 제거
+                })
                 .httpBasic(h -> h.disable())
                 .formLogin(f -> f.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login/oauth2/**", "/api/v1/oauth2/google").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/test").permitAll()
+                        .requestMatchers("/test", "/temp").permitAll()
+                        .requestMatchers("/user/**", "/post/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/user/signin/admin", "/user/signin/buyer", "/user/signin/seller").hasRole("USER")
                         .requestMatchers("/post/add").permitAll()
@@ -83,7 +87,12 @@ public class SecurityConfig {
                     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
                             throws ServletException, IOException {
                         // 이 attribute를 한 번 읽으면 CookieCsrfTokenRepository가 쿠키를 셋업함
-                        req.getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName());
+                        CsrfToken token = (CsrfToken) req.getAttribute(CsrfToken.class.getName());
+                        if (token != null) {
+                            token.getToken(); // <- 이 호출이 Set-Cookie 트리거
+                            System.out.println(token.getToken());
+                            res.setHeader("X-XSRF-TOKEN", token.getToken());
+                        }
                         chain.doFilter(req, res);
                     }
                 }, CsrfFilter.class);
@@ -102,16 +111,19 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
 
-        config.setAllowedOrigins(List.of("http://localhost:8080"));
-        config.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE", "PATCH"));
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.AUTHORIZATION,
                 HttpHeaders.CONTENT_TYPE,
                 "Access-Control-Allow-Headers",
                 "X-Requested-With",
-                "observe"
+                "observe",
+                "X-XSRF-TOKEN"
         ));
+        config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
+        config.setExposedHeaders(List.of("X-XSRF-TOKEN"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

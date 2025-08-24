@@ -40,7 +40,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
            update Post p
-              set p.auctionStatus = :completed
+              set p.auctionStatus = :completed,
+                  p.isUpdated = true
             where p.auctionStatus = :started
               and p.triggerAt is not null
               and p.triggerAt <= :twentyFiveMinLimit
@@ -51,4 +52,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Long countByRegistrationStatus(RegisterStatus status);
     Long countByAuctionStatusAndRegistrationStatus(AuctionStatus status, RegisterStatus registerStatus);
+
+    List<Post> findPostsByIsUpdatedAndAuctionStatus(Boolean isUpdated, AuctionStatus status);
 }
