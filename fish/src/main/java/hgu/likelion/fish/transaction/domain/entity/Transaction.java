@@ -27,9 +27,6 @@ public class Transaction extends BaseEntity {
     private Integer settlementPrice;
     private String settlementStatus;
 
-    private Double profitRate;
-    private String transactionCode;
-
     private LocalDateTime receiptDate;
     private Integer receiptStatus;
     private String receiptLocation;
