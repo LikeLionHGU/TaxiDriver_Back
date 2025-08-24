@@ -96,22 +96,22 @@ public class PostController {
         return ResponseEntity.ok(postService.getSpecificPosts(value, RegisterStatus.REGISTER_FAILED).stream().map(PostGetResponse::toResponse).toList());
     }
 
-    @GetMapping("/check/all/{value}")
+    @GetMapping("/check/all")
     public ResponseEntity<List<PostCheckResponse>> getAllPostChecks(@PathVariable DateStatus value) {
         return ResponseEntity.ok(postService.getAllPostChecks(value).stream().map(PostCheckResponse::from).toList());
     }
 
-    @GetMapping("/check/ready/{value}")
+    @GetMapping("/check/ready")
     public ResponseEntity<List<PostCheckResponse>> getReadyPostChecks(@PathVariable DateStatus value) {
         return ResponseEntity.ok(postService.getSpecificPostChecks(value, RegisterStatus.REGISTER_READY).stream().map(PostCheckResponse::from).toList());
     }
 
-    @GetMapping("/check/success/{value}")
+    @GetMapping("/check/success")
     public ResponseEntity<List<PostCheckResponse>> getSuccessPostChecks(@PathVariable DateStatus value) {
         return ResponseEntity.ok(postService.getSpecificPostChecks(value, RegisterStatus.REGISTER_SUCCESS).stream().map(PostCheckResponse::from).toList());
     }
 
-    @GetMapping("/check/failed/{value}")
+    @GetMapping("/check/failed")
     public ResponseEntity<List<PostCheckResponse>> getFailedPostChecks(@PathVariable DateStatus value) {
         return ResponseEntity.ok(postService.getSpecificPostChecks(value, RegisterStatus.REGISTER_FAILED).stream().map(PostCheckResponse::from).toList());
     }
