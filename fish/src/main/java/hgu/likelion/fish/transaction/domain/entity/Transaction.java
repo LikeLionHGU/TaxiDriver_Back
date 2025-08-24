@@ -20,14 +20,14 @@ public class Transaction extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime winningDate;
-    private Integer winningPrice;
+    private LocalDateTime winningDate; // 낙찰일
+    private Integer winningPrice; // 낙찰가
 
-    private LocalDateTime settlementDate;
-    private Integer settlementPrice;
-    private String settlementStatus;
+    private LocalDateTime settlementDate; // 정산일
+    private Integer settlementPrice; // 정산가
+    private String settlementStatus; // 정산현황
 
-    private Double profitRate;
+    private Double profitRate; //
     private String transactionCode;
 
     private LocalDateTime receiptDate;

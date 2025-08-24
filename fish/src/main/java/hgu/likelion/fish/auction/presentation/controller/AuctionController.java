@@ -46,8 +46,12 @@ public class AuctionController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/specific/users")
+    @GetMapping("/specific/users/{postId}")
     public ResponseEntity<List<AuctionGetResponse>> getUserAuction(@PathVariable Long postId) {
         return ResponseEntity.ok(auctionService.getAllUserAuction(postId));
     }
+
+    
+
+
 }
