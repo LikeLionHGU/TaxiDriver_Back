@@ -1,6 +1,7 @@
 package hgu.likelion.fish.user.presentation.controller;
 
 import hgu.likelion.fish.commons.jwt.MyPrincipal;
+import hgu.likelion.fish.commons.login.config.Role;
 import hgu.likelion.fish.user.application.dto.UserDto;
 import hgu.likelion.fish.user.application.service.UserService;
 import hgu.likelion.fish.user.presentation.request.UserAdminSignRequest;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -71,5 +74,10 @@ public class UserController {
         Boolean result = userService.updateSellerUser(UserDto.toUpdateSeller(request, userId));
 
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/user/check")
+    public ResponseEntity<Set<Role>> checkRole(@AuthenticationPrincipal MyPrincipal principal) {
+        return ResponseEntity.ok(principal.getRoles());
     }
 }

@@ -1,5 +1,10 @@
 package hgu.likelion.fish.post.application.service;
 
+
+import hgu.likelion.fish.ai.AiService;
+import hgu.likelion.fish.ai.InferenceResult;
+import hgu.likelion.fish.auction.domain.entity.Auction;
+import hgu.likelion.fish.auction.domain.repository.AuctionRepository;
 import hgu.likelion.fish.commons.entity.AuctionStatus;
 import hgu.likelion.fish.commons.entity.DateStatus;
 import hgu.likelion.fish.commons.entity.RegisterStatus;
@@ -11,11 +16,7 @@ import hgu.likelion.fish.post.ProductNativeRepository;
 import hgu.likelion.fish.post.application.dto.PostDto;
 import hgu.likelion.fish.post.domain.entity.Post;
 import hgu.likelion.fish.post.domain.repository.PostRepository;
-import hgu.likelion.fish.post.presentation.response.PostAuctionListResponse;
-import hgu.likelion.fish.post.presentation.response.PostListResponse;
-import hgu.likelion.fish.post.presentation.response.PostReceiveResponse;
-import hgu.likelion.fish.post.presentation.response.PostSellResponse;
-import hgu.likelion.fish.user.application.service.UserService;
+import hgu.likelion.fish.post.presentation.response.*;
 import hgu.likelion.fish.user.domain.entity.User;
 import hgu.likelion.fish.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,8 @@ public class PostService {
     private final S3Service s3Service;
     private final ProductNativeRepository productNativeRepository;
     private final S3Repository s3Repository;
+    private final AuctionRepository auctionRepository;
+    private final AiService aiService;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -48,15 +51,26 @@ public class PostService {
     @Transactional
     public PostDto savePost(PostDto postDto, MultipartFile[] files, String dirName, User user) throws IOException {
         List<Image> images = new ArrayList<>();
+
+        InferenceResult s = null;
         for (MultipartFile file : files) {
             String url = s3Service.uploadFiles(file, "va/");
+
+            try {
+                s = aiService.relayToFastApi(file);
+
+            } catch (Exception ignored) {
+            }
+
             Image image = new Image();
             image.setUrl(url);
 
             images.add(image);
         }
 
-        Post post = Post.fromDto(postDto, images, user);
+        assert s != null; // s가 null이면 오류 발생
+
+        Post post = Post.fromDto(postDto, images, user, s);
         for (Image image : images) {
             image.setPost(post);
         }
@@ -75,6 +89,34 @@ public class PostService {
     private String generateImageUrl(String storedFileName) {
         return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + storedFileName;
     }
+
+    @Transactional(readOnly = true)
+    public List<PostDto> getAllPostWithUser(DateStatus status, String userId) {
+        // 1) now는 한 번만
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Post> postList;
+        User user = userRepository.findUserByUserId(userId);
+
+        if (status == null || status == DateStatus.ALL) {
+            // 전체 + 정렬(원하면)
+            postList = postRepository.findAllBySellerOrderByRegDateDesc(user);
+        } else if (status == DateStatus.RECENT_1WEEK) {
+            postList = postRepository.findAllBySellerAndRegDateAfter(user, now.minusDays(7));
+        } else if (status == DateStatus.RECENT_1MONTH) {
+            postList = postRepository.findAllBySellerAndRegDateAfter(user, now.minusDays(30));
+        } else if (status == DateStatus.RECENT_3MONTH) {
+            postList = postRepository.findAllBySellerAndRegDateAfter(user, now.minusDays(90));
+        } else {
+            // 명시적으로 RECENT_6MONTH 같은 enum을 두는 게 좋음
+            postList = postRepository.findAllBySellerAndRegDateAfter(user, now.minusDays(180));
+        }
+
+        return postList.stream()
+                .map(PostDto::toGetResponse)
+                .toList();
+    }
+
 
     @Transactional(readOnly = true)
     public List<PostDto> getAllPost(DateStatus status) {
@@ -101,14 +143,38 @@ public class PostService {
                 .map(PostDto::toGetResponse)
                 .toList();
     }
+    @Transactional
+    public List<PostDto> getSpecificPostsWithUser(DateStatus status, RegisterStatus registerStatus, String userId) {
+        User user = userRepository.findUserByUserId(userId);
+        List<Post> postList;
 
+        if(status.equals(DateStatus.ALL)) {
+            postList = postRepository.findAllByRegistrationStatusAndSellerOrderByRegDateDesc(registerStatus, user);
+
+        } else if(status.equals(DateStatus.RECENT_1WEEK)) {
+            var from = LocalDateTime.now().minusDays(7);
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatusAndSeller(from, registerStatus, user);
+
+        } else if(status.equals(DateStatus.RECENT_1MONTH)) {
+            var from = LocalDateTime.now().minusDays(30);
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatusAndSeller(from, registerStatus, user);
+
+        } else if(status.equals(DateStatus.RECENT_3MONTH)) {
+            var from = LocalDateTime.now().minusDays(90);
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatusAndSeller(from, registerStatus, user);
+        } else {
+            var from = LocalDateTime.now().minusDays(180);
+            postList = postRepository.findAllByRegDateAfterAndRegistrationStatusAndSeller(from, registerStatus, user);
+        }
+
+        return postList.stream().map(PostDto::toGetResponse).toList();
+    }
     @Transactional
     public List<PostDto> getSpecificPosts(DateStatus status, RegisterStatus registerStatus) {
         List<Post> postList;
 
         if(status.equals(DateStatus.ALL)) {
-            var from = LocalDateTime.now();
-            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
+            postList = postRepository.findAllByRegistrationStatusOrderByRegDateDesc(registerStatus);
 
         } else if(status.equals(DateStatus.RECENT_1WEEK)) {
             var from = LocalDateTime.now().minusDays(7);
@@ -149,14 +215,45 @@ public class PostService {
         return postList.stream().map(PostDto::from).toList();
     }
 
+
+
+
+
+
+
+
+
     @Transactional
     public List<PostDto> getAllAuctionPosts() {
         return postRepository.findAllByRegistrationStatus(RegisterStatus.REGISTER_SUCCESS).stream().map(PostDto::toAuctionResponse).toList();
     }
     @Transactional
+    public List<PostDto> getAllAuctionPosts(String userId) {
+        User user = userRepository.findUserByUserId(userId);
+        return postRepository.findAllByRegistrationStatusAndSeller(RegisterStatus.REGISTER_SUCCESS, user).stream().map(PostDto::toAuctionResponse).toList();
+    }
+    @Transactional
     public List<PostDto> getSpecificAuctionPosts(AuctionStatus status) {
         return postRepository.findAllByRegistrationStatusAndAuctionStatus(RegisterStatus.REGISTER_SUCCESS, status).stream().map(PostDto::toAuctionResponse).toList();
     }
+    @Transactional
+    public List<PostDto> getSpecificAuctionPosts(AuctionStatus status, String userId) {
+        User user = userRepository.findUserByUserId(userId);
+        return postRepository.findAllByRegistrationStatusAndAuctionStatusAndSeller(RegisterStatus.REGISTER_SUCCESS, status, user).stream().map(PostDto::toAuctionResponse).toList();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Transactional
     public Boolean updateRegisterStatus(Boolean value, Long id) {
@@ -219,7 +316,14 @@ public class PostService {
             urls.add(i.getUrl());
         }
 
-        return PostDto.toGetOneResponse(post, urls);
+
+        Auction auction = auctionRepository.findTopByPostOrderByPriceDesc(post);
+
+        if(auction == null) {
+            return PostDto.toGetOneResponse(post, urls, 0);
+        } else {
+            return PostDto.toGetOneResponse(post, urls, auction.getPrice());
+        }
     }
 
 
@@ -297,6 +401,35 @@ public class PostService {
         return postList.stream().map(PostReceiveResponse::toResponse).toList();
     }
 
+    @Transactional
+    public List<PostReceiveResponse> getReceiveAdmin() {
+        List<Post> postList = postRepository.findAllByTotalPriceNotNull();
+
+        return postList.stream().map(PostReceiveResponse::toResponse).toList();
+    }
+
+
+
+
+    @Transactional
+    public PostAuctionCountResponse getPostReceiveUserList(String userId) {
+        User user = userRepository.findUserByUserId(userId);
+
+        Long totalCount = postRepository.countByTotalPriceNotNullAndBuyer(user);
+        Long waitCount = postRepository.countByTotalPriceNotNullAndIsReceivedFalseAndBuyer(user);
+        Long finishCount = postRepository.countByTotalPriceNotNullAndIsReceivedTrueAndBuyer(user);
+
+        return PostAuctionCountResponse.toResponse(totalCount, waitCount, finishCount);
+    }
+
+    @Transactional
+    public PostAuctionCountResponse getPostReceiveAdminList() {
+        Long totalCount = postRepository.countByTotalPriceNotNull();
+        Long waitCount = postRepository.countByTotalPriceNotNullAndIsReceivedFalse();
+        Long finishCount = postRepository.countByTotalPriceNotNullAndIsReceivedTrue();
+
+        return PostAuctionCountResponse.toResponse(totalCount, waitCount, finishCount);
+    }
 
 
 }

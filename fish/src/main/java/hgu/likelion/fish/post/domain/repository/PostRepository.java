@@ -18,13 +18,22 @@ import java.util.List;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findAllByRegDateAfter(LocalDateTime from);
+    List<Post> findAllBySellerAndRegDateAfter(User user, LocalDateTime from);
 
     List<Post> findAllByOrderByRegDateDesc();
 
+    List<Post> findAllBySellerOrderByRegDateDesc(User user);
+    List<Post> findAllByRegistrationStatusOrderByRegDateDesc(RegisterStatus status);
+    List<Post> findAllByRegistrationStatusAndSellerOrderByRegDateDesc(RegisterStatus status, User user);
+
+
     List<Post> findAllByRegDateAfterAndRegistrationStatus(LocalDateTime from, RegisterStatus status);
+    List<Post> findAllByRegDateAfterAndRegistrationStatusAndSeller(LocalDateTime from, RegisterStatus status, User user);
 
     List<Post> findAllByRegistrationStatus(RegisterStatus status);
+    List<Post> findAllByRegistrationStatusAndSeller(RegisterStatus status, User user);
     List<Post> findAllByRegistrationStatusAndAuctionStatus(RegisterStatus registerStatus, AuctionStatus auctionStatus);
+    List<Post> findAllByRegistrationStatusAndAuctionStatusAndSeller(RegisterStatus registerStatus, AuctionStatus auctionStatus, User user);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
@@ -66,6 +75,21 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findAllByBuyerAndTotalPriceNotNull(User user);
 
+    List<Post> findAllByTotalPriceNotNull();
+
     Long countBySeller(User user);
+
+
+    Long countByTotalPriceNotNull();
+
+    Long countByTotalPriceNotNullAndBuyer(User user);
+
+    Long countByTotalPriceNotNullAndIsReceivedTrue();
+    Long countByTotalPriceNotNullAndIsReceivedFalse();
+
+    Long countByTotalPriceNotNullAndIsReceivedTrueAndBuyer(User user);
+    Long countByTotalPriceNotNullAndIsReceivedFalseAndBuyer(User user);
+
+
 
 }

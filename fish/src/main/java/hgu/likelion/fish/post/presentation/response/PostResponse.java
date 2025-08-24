@@ -28,6 +28,7 @@ public class PostResponse {
     private UserDto seller;
     private String origin;
     private AuctionStatus auctionStatus;
+    private Integer topPrice;
     private List<String> urls;
 
     public static PostResponse toGetOneResponse(PostDto post) {
@@ -44,6 +45,7 @@ public class PostResponse {
                 .triggerAt(post.getTriggerAt())
                 .reservePrice(post.getReservePrice())
                 .urls(post.getUrls())
+                .topPrice(post.getTopPrice())
                 .build();
     }
 }

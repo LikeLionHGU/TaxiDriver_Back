@@ -81,29 +81,44 @@ public class PostController {
     }
 
 
+
+
+
+
     // user 반영
     @GetMapping("/get/all/{value}")
-    public ResponseEntity<List<PostGetResponse>> getAllPosts(@PathVariable DateStatus value) {
-        return ResponseEntity.ok(postService.getAllPost(value).stream().map(PostGetResponse::toResponse).toList());
+    public ResponseEntity<List<PostGetResponse>> getAllPosts(@PathVariable DateStatus value, @AuthenticationPrincipal MyPrincipal principal) {
+        return ResponseEntity.ok(postService.getAllPostWithUser(value, principal.getUserId()).stream().map(PostGetResponse::toResponse).toList());
     }
+
 
     // user 반영
     @GetMapping("/get/ready/{value}")
-    public ResponseEntity<List<PostGetResponse>> getReadyPosts(@PathVariable DateStatus value) {
-        return ResponseEntity.ok(postService.getSpecificPosts(value, RegisterStatus.REGISTER_READY).stream().map(PostGetResponse::toResponse).toList());
+    public ResponseEntity<List<PostGetResponse>> getReadyPosts(@PathVariable DateStatus value, @AuthenticationPrincipal MyPrincipal principal) {
+        return ResponseEntity.ok(postService.getSpecificPostsWithUser(value, RegisterStatus.REGISTER_READY, principal.getUserId()).stream().map(PostGetResponse::toResponse).toList());
     }
+
 
     // user 반영
     @GetMapping("/get/success/{value}")
-    public ResponseEntity<List<PostGetResponse>> getSuccessPosts(@PathVariable DateStatus value) {
-        return ResponseEntity.ok(postService.getSpecificPosts(value, RegisterStatus.REGISTER_SUCCESS).stream().map(PostGetResponse::toResponse).toList());
+    public ResponseEntity<List<PostGetResponse>> getSuccessPosts(@PathVariable DateStatus value, @AuthenticationPrincipal MyPrincipal principal) {
+        return ResponseEntity.ok(postService.getSpecificPostsWithUser(value, RegisterStatus.REGISTER_SUCCESS, principal.getUserId()).stream().map(PostGetResponse::toResponse).toList());
     }
+
 
     // user 반영
     @GetMapping("/get/failed/{value}")
-    public ResponseEntity<List<PostGetResponse>> getFailedPosts(@PathVariable DateStatus value) {
-        return ResponseEntity.ok(postService.getSpecificPosts(value, RegisterStatus.REGISTER_FAILED).stream().map(PostGetResponse::toResponse).toList());
+    public ResponseEntity<List<PostGetResponse>> getFailedPosts(@PathVariable DateStatus value, @AuthenticationPrincipal MyPrincipal principal) {
+        return ResponseEntity.ok(postService.getSpecificPostsWithUser(value, RegisterStatus.REGISTER_FAILED, principal.getUserId()).stream().map(PostGetResponse::toResponse).toList());
     }
+
+
+
+
+
+
+
+
 
     @GetMapping("/check/all")
     public ResponseEntity<List<PostCheckResponse>> getAllPostChecks() {
@@ -127,33 +142,81 @@ public class PostController {
 
 
 
+
+
+
+
+
+
+
+
     // user 반영
     @GetMapping("/get/auction/all")
-    public ResponseEntity<List<PostAuctionResponse>> getAllAuctionPosts() {
+    public ResponseEntity<List<PostAuctionResponse>> getAllAuctionPosts(@AuthenticationPrincipal MyPrincipal principal) {
+
+        return ResponseEntity.ok(postService.getAllAuctionPosts(principal.getUserId()).stream().map(PostAuctionResponse::toAuctionResponse).toList());
+    }
+
+    @GetMapping("/get/auction/all/admin")
+    public ResponseEntity<List<PostAuctionResponse>> getAllAuctionPostsAdmin() {
 
         return ResponseEntity.ok(postService.getAllAuctionPosts().stream().map(PostAuctionResponse::toAuctionResponse).toList());
     }
 
     // user 반영
     @GetMapping("/get/auction/ready")
-    public ResponseEntity<List<PostAuctionResponse>> getReadyAuctionPosts() {
+    public ResponseEntity<List<PostAuctionResponse>> getReadyAuctionPosts(@AuthenticationPrincipal MyPrincipal principal) {
+
+        return ResponseEntity.ok(postService.getSpecificAuctionPosts(AuctionStatus.AUCTION_READY, principal.getUserId()).stream().map(PostAuctionResponse::toAuctionResponse).toList());
+    }
+    @GetMapping("/get/auction/ready/admin")
+    public ResponseEntity<List<PostAuctionResponse>> getReadyAuctionPostsAdmin() {
 
         return ResponseEntity.ok(postService.getSpecificAuctionPosts(AuctionStatus.AUCTION_READY).stream().map(PostAuctionResponse::toAuctionResponse).toList());
     }
 
     // user 반영
     @GetMapping("/get/auction/current")
-    public ResponseEntity<List<PostAuctionResponse>> getCurrentAuctionPosts() {
+    public ResponseEntity<List<PostAuctionResponse>> getCurrentAuctionPosts(@AuthenticationPrincipal MyPrincipal principal) {
+
+        return ResponseEntity.ok(postService.getSpecificAuctionPosts(AuctionStatus.AUCTION_CURRENT, principal.getUserId()).stream().map(PostAuctionResponse::toAuctionResponse).toList());
+    }
+    @GetMapping("/get/auction/current/admin")
+    public ResponseEntity<List<PostAuctionResponse>> getCurrentAuctionPostsAdmin() {
 
         return ResponseEntity.ok(postService.getSpecificAuctionPosts(AuctionStatus.AUCTION_CURRENT).stream().map(PostAuctionResponse::toAuctionResponse).toList());
     }
 
+
     // user 반영
     @GetMapping("/get/auction/finish")
-    public ResponseEntity<List<PostAuctionResponse>> getFinishAuctionPosts() {
+    public ResponseEntity<List<PostAuctionResponse>> getFinishAuctionPosts(@AuthenticationPrincipal MyPrincipal principal) {
+
+        return ResponseEntity.ok(postService.getSpecificAuctionPosts(AuctionStatus.AUCTION_FINISH, principal.getUserId()).stream().map(PostAuctionResponse::toAuctionResponse).toList());
+    }
+    @GetMapping("/get/auction/finish/admin")
+    public ResponseEntity<List<PostAuctionResponse>> getFinishAuctionPostsAdmin() {
 
         return ResponseEntity.ok(postService.getSpecificAuctionPosts(AuctionStatus.AUCTION_FINISH).stream().map(PostAuctionResponse::toAuctionResponse).toList());
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -187,6 +250,22 @@ public class PostController {
     @GetMapping("/get/receive/user")
     public ResponseEntity<List<PostReceiveResponse>> getReceiveList(@AuthenticationPrincipal MyPrincipal principal) {
         return ResponseEntity.ok(postService.getReceiveList(principal.getUserId()));
+    }
+
+    @GetMapping("/get/receive/admin")
+    public ResponseEntity<List<PostReceiveResponse>> getReceiveAdminList() {
+        return ResponseEntity.ok(postService.getReceiveAdmin());
+    }
+
+    @GetMapping("/get/receive/count/user")
+    public ResponseEntity<PostAuctionCountResponse> getReceiveCountUser(@AuthenticationPrincipal MyPrincipal principal) {
+        String userId = principal.getUserId();
+        return ResponseEntity.ok(postService.getPostReceiveUserList(userId));
+    }
+
+    @GetMapping("/get/receive/count/admin")
+    public ResponseEntity<PostAuctionCountResponse> getReceiveCountAdmin() {
+        return ResponseEntity.ok(postService.getPostReceiveAdminList());
     }
 
 
