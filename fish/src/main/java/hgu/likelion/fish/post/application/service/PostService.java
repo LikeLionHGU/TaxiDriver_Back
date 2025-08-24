@@ -126,51 +126,21 @@ public class PostService {
     }
 
     @Transactional
-    public List<PostDto> getAllPostChecks(DateStatus status) {
+    public List<PostDto> getAllPostChecks() {
 
         List<Post> postList;
 
-        if(status.equals(DateStatus.ALL)) {
-            var from = LocalDateTime.now();
-            postList = postRepository.findAllByRegDateAfter(from);
-        } else if(status.equals(DateStatus.RECENT_1WEEK)) {
-            var from = LocalDateTime.now().minusDays(7);
-            postList = postRepository.findAllByRegDateAfter(from);
-        } else if(status.equals(DateStatus.RECENT_1MONTH)) {
-            var from = LocalDateTime.now().minusDays(30);
-            postList = postRepository.findAllByRegDateAfter(from);
-        } else if(status.equals(DateStatus.RECENT_3MONTH)) {
-            var from = LocalDateTime.now().minusDays(90);
-            postList = postRepository.findAllByRegDateAfter(from);
-        } else {
-            var from = LocalDateTime.now().minusDays(180);
-            postList = postRepository.findAllByRegDateAfter(from);
-        }
+        postList = postRepository.findAll();
 
         return postList.stream().map(PostDto::from).toList();
     }
 
     @Transactional
-    public List<PostDto> getSpecificPostChecks(DateStatus status, RegisterStatus registerStatus) {
+    public List<PostDto> getSpecificPostChecks(RegisterStatus registerStatus) {
 
         List<Post> postList;
 
-        if(status.equals(DateStatus.ALL)) {
-            var from = LocalDateTime.now();
-            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
-        } else if(status.equals(DateStatus.RECENT_1WEEK)) {
-            var from = LocalDateTime.now().minusDays(7);
-            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
-        } else if(status.equals(DateStatus.RECENT_1MONTH)) {
-            var from = LocalDateTime.now().minusDays(30);
-            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
-        } else if(status.equals(DateStatus.RECENT_3MONTH)) {
-            var from = LocalDateTime.now().minusDays(90);
-            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
-        } else {
-            var from = LocalDateTime.now().minusDays(180);
-            postList = postRepository.findAllByRegDateAfterAndRegistrationStatus(from, registerStatus);
-        }
+        postList = postRepository.findAllByRegistrationStatus(registerStatus);
 
         return postList.stream().map(PostDto::from).toList();
     }

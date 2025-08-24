@@ -97,23 +97,23 @@ public class PostController {
     }
 
     @GetMapping("/check/all")
-    public ResponseEntity<List<PostCheckResponse>> getAllPostChecks(@PathVariable DateStatus value) {
-        return ResponseEntity.ok(postService.getAllPostChecks(value).stream().map(PostCheckResponse::from).toList());
+    public ResponseEntity<List<PostCheckResponse>> getAllPostChecks() {
+        return ResponseEntity.ok(postService.getAllPostChecks().stream().map(PostCheckResponse::from).toList());
     }
 
     @GetMapping("/check/ready")
-    public ResponseEntity<List<PostCheckResponse>> getReadyPostChecks(@PathVariable DateStatus value) {
-        return ResponseEntity.ok(postService.getSpecificPostChecks(value, RegisterStatus.REGISTER_READY).stream().map(PostCheckResponse::from).toList());
+    public ResponseEntity<List<PostCheckResponse>> getReadyPostChecks() {
+        return ResponseEntity.ok(postService.getSpecificPostChecks(RegisterStatus.REGISTER_READY).stream().map(PostCheckResponse::from).toList());
     }
 
     @GetMapping("/check/success")
-    public ResponseEntity<List<PostCheckResponse>> getSuccessPostChecks(@PathVariable DateStatus value) {
-        return ResponseEntity.ok(postService.getSpecificPostChecks(value, RegisterStatus.REGISTER_SUCCESS).stream().map(PostCheckResponse::from).toList());
+    public ResponseEntity<List<PostCheckResponse>> getSuccessPostChecks() {
+        return ResponseEntity.ok(postService.getSpecificPostChecks(RegisterStatus.REGISTER_SUCCESS).stream().map(PostCheckResponse::from).toList());
     }
 
     @GetMapping("/check/failed")
-    public ResponseEntity<List<PostCheckResponse>> getFailedPostChecks(@PathVariable DateStatus value) {
-        return ResponseEntity.ok(postService.getSpecificPostChecks(value, RegisterStatus.REGISTER_FAILED).stream().map(PostCheckResponse::from).toList());
+    public ResponseEntity<List<PostCheckResponse>> getFailedPostChecks() {
+        return ResponseEntity.ok(postService.getSpecificPostChecks(RegisterStatus.REGISTER_FAILED).stream().map(PostCheckResponse::from).toList());
     }
 
 
