@@ -44,6 +44,8 @@ public class PostDto {
     private String origin;
     private List<String> urls;
 
+    private Integer topPrice;
+
 
     public static PostDto from(Post post, List<String> urls) {
         return PostDto.builder()
@@ -113,10 +115,12 @@ public class PostDto {
                 .build();
     }
 
-    public static PostDto toGetOneResponse(Post post) {
+    public static PostDto toGetOneResponse(Post post, List<String> urls, Integer topPrice) {
         return PostDto.builder()
                 .id(post.getId())
                 .name(post.getName())
+                .urls(urls)
+                .auctionStatus(post.getAuctionStatus())
                 .origin(post.getOrigin())
                 .seller(UserDto.toPostGetResponse(post.getSeller()))
                 .registeredDate(post.getRegDate())
@@ -124,6 +128,7 @@ public class PostDto {
                 .fishWeight(post.getFishWeight())
                 .salesMethod(post.getSalesMethod())
                 .triggerAt(post.getTriggerAt())
+                .topPrice(topPrice)
                 .reservePrice(post.getReservePrice())
                 .build();
     }

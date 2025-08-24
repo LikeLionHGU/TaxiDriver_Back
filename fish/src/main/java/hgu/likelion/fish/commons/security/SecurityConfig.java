@@ -16,6 +16,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -58,6 +60,8 @@ public class SecurityConfig {
         var requestHandler = new CsrfTokenRequestAttributeHandler();
         requestHandler.setCsrfRequestAttributeName("_csrf"); // (선택) 요청 attribute 이름
 
+
+
         http
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
@@ -72,7 +76,7 @@ public class SecurityConfig {
                         .requestMatchers("/login/oauth2/**", "/api/v1/oauth2/google").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/test", "/temp").permitAll()
-                        .requestMatchers("/user/**", "/post/**").permitAll()
+                        .requestMatchers("/user/**", "/post/**").hasRole("USER")
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/user/signin/admin", "/user/signin/buyer", "/user/signin/seller").hasRole("USER")
                         .requestMatchers("/post/add").permitAll()

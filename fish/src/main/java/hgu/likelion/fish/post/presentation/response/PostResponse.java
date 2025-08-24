@@ -8,6 +8,7 @@ import hgu.likelion.fish.user.application.dto.UserDto;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,6 +27,9 @@ public class PostResponse {
     private LocalDateTime triggerAt;
     private UserDto seller;
     private String origin;
+    private AuctionStatus auctionStatus;
+    private Integer topPrice;
+    private List<String> urls;
 
     public static PostResponse toGetOneResponse(PostDto post) {
         return PostResponse.builder()
@@ -34,11 +38,14 @@ public class PostResponse {
                 .origin(post.getOrigin())
                 .seller(post.getSeller())
                 .registeredDate(post.getRegisteredDate())
+                .auctionStatus(post.getAuctionStatus())
                 .fishCount(post.getFishCount())
                 .fishWeight(post.getFishWeight())
                 .salesMethod(post.getSalesMethod())
                 .triggerAt(post.getTriggerAt())
                 .reservePrice(post.getReservePrice())
+                .urls(post.getUrls())
+                .topPrice(post.getTopPrice())
                 .build();
     }
 }

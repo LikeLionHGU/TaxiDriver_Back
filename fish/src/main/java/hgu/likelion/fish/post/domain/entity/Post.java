@@ -1,5 +1,6 @@
 package hgu.likelion.fish.post.domain.entity;
 
+import hgu.likelion.fish.ai.InferenceResult;
 import hgu.likelion.fish.auction.domain.entity.Auction;
 import hgu.likelion.fish.commons.entity.AuctionStatus;
 import hgu.likelion.fish.commons.entity.BaseEntity;
@@ -41,7 +42,7 @@ public class Post extends BaseEntity {
     private AuctionStatus auctionStatus;
 
     private String commentBySeller;
-    private String aiEvaluation;
+
 
     private LocalDateTime triggerAt;
     private LocalDateTime startedAt;
@@ -68,7 +69,16 @@ public class Post extends BaseEntity {
     @OneToOne(mappedBy = "post")
     private Auction auction;
 
-    public static Post fromDto(PostDto postDto, List<Image> images, User user) {
+    private Boolean isReceived;
+    private LocalDateTime receivedTime;
+
+
+
+    // 여기는 ai 검사 결과
+    private String aiEvaluation;
+    private String reason;
+
+    public static Post fromDto(PostDto postDto, List<Image> images, User user, InferenceResult inferenceResult) {
         return Post.builder()
                 .name(postDto.getName())
                 .fishCount(postDto.getFishCount())
@@ -78,7 +88,11 @@ public class Post extends BaseEntity {
                 .reservePrice(postDto.getReservePrice())
                 .images(images)
                 .seller(user)
+                .aiEvaluation(inferenceResult.getStatus())
+                .reason(String.join(",", inferenceResult.getDecision_reasons()))
+                .registrationStatus(RegisterStatus.REGISTER_READY)
                 .isUpdated(false)
+                .isReceived(false)
                 .build();
     }
 

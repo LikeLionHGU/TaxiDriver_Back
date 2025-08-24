@@ -31,7 +31,7 @@ public class AuctionController {
     @PostMapping("/add")
     public ResponseEntity<AuctionAddResponse> addAuction(
             @AuthenticationPrincipal MyPrincipal principal,
-            @RequestPart("auction")AuctionInfoRequest info) {
+            @RequestBody AuctionInfoRequest info) {
         AuctionAddResponse response = new AuctionAddResponse();
 
         String userId = principal.getUserId();

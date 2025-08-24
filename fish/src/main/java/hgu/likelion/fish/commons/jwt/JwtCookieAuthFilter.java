@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -44,6 +45,10 @@ public class JwtCookieAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws IOException, ServletException {
+        System.out.println("[JWT] Cookie header = " + req.getHeader("Cookie"));
+        System.out.println("[JWT] ENTER path=" + req.getRequestURI());
+        System.out.println("[JWT] has SESSION cookie? " + (readCookie(req,"SESSION")!=null));
+        System.out.println("[JWT] preAuth=" + SecurityContextHolder.getContext().getAuthentication());
 
         String token = readCookie(req, "SESSION");
 
@@ -60,6 +65,11 @@ public class JwtCookieAuthFilter extends OncePerRequestFilter {
 
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
                 SecurityContextHolder.getContext().setAuthentication(auth);
+                Authentication a = SecurityContextHolder.getContext().getAuthentication();
+                System.out.println("auth=" + a);
+                if (a != null) {
+                    a.getAuthorities().forEach(ga -> System.out.println("authority=" + ga.getAuthority()));
+                }
 
             } catch (ExpiredJwtException e) {
                 SecurityContextHolder.clearContext();
