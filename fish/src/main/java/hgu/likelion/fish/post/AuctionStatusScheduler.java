@@ -1,6 +1,7 @@
 package hgu.likelion.fish.post;
 
 import hgu.likelion.fish.commons.entity.AuctionStatus;
+import hgu.likelion.fish.post.domain.entity.Post;
 import hgu.likelion.fish.post.domain.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @EnableScheduling
 @Service
@@ -40,7 +42,22 @@ public class AuctionStatusScheduler {
                 now.minusMinutes(25)
         );
 
-        // 필요시 로그
-        // log.info("started={}, completed={}", started, completed);
+        if(s2 > 0) {
+            List<Post> postList = repo.findPostsByIsUpdatedAndAuctionStatus(true, AuctionStatus.AUCTION_FINISH);
+
+            for(Post p : postList) {
+                p.setIsUpdated(false);
+            }
+
+            repo.saveAll(postList);
+            updateTransaction(postList);
+        }
+
+    }
+
+    @Transactional
+    public void updateTransaction(List<Post> postList) {
+
+
     }
 }

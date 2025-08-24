@@ -35,6 +35,9 @@ public class User extends BaseEntity {
     private String name;
     private String location;
 
+    @OneToOne(mappedBy = "user")
+    private Auction auction;
+
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
     private List<Post> postSellList;
 
@@ -55,9 +58,4 @@ public class User extends BaseEntity {
         if (roles == null) roles = new HashSet<>();
         roles.add(role);
     }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Auction auction;
-
-
 }

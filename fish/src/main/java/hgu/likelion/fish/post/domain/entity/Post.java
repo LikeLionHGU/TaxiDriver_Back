@@ -1,5 +1,6 @@
 package hgu.likelion.fish.post.domain.entity;
 
+import hgu.likelion.fish.auction.domain.entity.Auction;
 import hgu.likelion.fish.commons.entity.AuctionStatus;
 import hgu.likelion.fish.commons.entity.BaseEntity;
 import hgu.likelion.fish.commons.entity.RegisterStatus;
@@ -45,6 +46,8 @@ public class Post extends BaseEntity {
     private LocalDateTime triggerAt;
     private LocalDateTime startedAt;
 
+    private Boolean isUpdated; // 경매 완료 후에 Transaction으로 넘어갔는지 여부
+
     @ManyToOne(fetch = FetchType.LAZY)
     private User buyer;
 
@@ -59,6 +62,9 @@ public class Post extends BaseEntity {
     @Builder.Default
     private List<Image> images = new ArrayList<>();
 
+    @OneToOne(mappedBy = "post")
+    private Auction auction;
+
     public static Post fromDto(PostDto postDto, List<Image> images, User user) {
         return Post.builder()
                 .name(postDto.getName())
@@ -69,6 +75,7 @@ public class Post extends BaseEntity {
                 .reservePrice(postDto.getReservePrice())
                 .images(images)
                 .seller(user)
+                .isUpdated(false)
                 .build();
     }
 
