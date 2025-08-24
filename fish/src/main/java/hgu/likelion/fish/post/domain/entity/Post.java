@@ -67,6 +67,9 @@ public class Post extends BaseEntity {
     @OneToOne(mappedBy = "post")
     private Auction auction;
 
+    private Boolean isReceived;
+    private LocalDateTime receivedTime;
+
     public static Post fromDto(PostDto postDto, List<Image> images, User user) {
         return Post.builder()
                 .name(postDto.getName())
@@ -77,7 +80,9 @@ public class Post extends BaseEntity {
                 .reservePrice(postDto.getReservePrice())
                 .images(images)
                 .seller(user)
+                .registrationStatus(RegisterStatus.REGISTER_READY)
                 .isUpdated(false)
+                .isReceived(false)
                 .build();
     }
 

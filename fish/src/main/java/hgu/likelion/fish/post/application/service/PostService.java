@@ -4,12 +4,16 @@ import hgu.likelion.fish.commons.entity.AuctionStatus;
 import hgu.likelion.fish.commons.entity.DateStatus;
 import hgu.likelion.fish.commons.entity.RegisterStatus;
 import hgu.likelion.fish.commons.image.entity.Image;
+import hgu.likelion.fish.commons.image.repository.S3Repository;
 import hgu.likelion.fish.commons.image.service.S3Service;
+import hgu.likelion.fish.post.ProductDto;
+import hgu.likelion.fish.post.ProductNativeRepository;
 import hgu.likelion.fish.post.application.dto.PostDto;
 import hgu.likelion.fish.post.domain.entity.Post;
 import hgu.likelion.fish.post.domain.repository.PostRepository;
 import hgu.likelion.fish.post.presentation.response.PostAuctionListResponse;
 import hgu.likelion.fish.post.presentation.response.PostListResponse;
+import hgu.likelion.fish.post.presentation.response.PostReceiveResponse;
 import hgu.likelion.fish.post.presentation.response.PostSellResponse;
 import hgu.likelion.fish.user.application.service.UserService;
 import hgu.likelion.fish.user.domain.entity.User;
@@ -32,6 +36,8 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final S3Service s3Service;
+    private final ProductNativeRepository productNativeRepository;
+    private final S3Repository s3Repository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -70,32 +76,30 @@ public class PostService {
         return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + storedFileName;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PostDto> getAllPost(DateStatus status) {
+        // 1) now는 한 번만
+        LocalDateTime now = LocalDateTime.now();
 
         List<Post> postList;
 
-        if(status.equals(DateStatus.ALL)) {
-            var from = LocalDateTime.now();
-            postList = postRepository.findAllByRegDateAfter(from);
-
-        } else if(status.equals(DateStatus.RECENT_1WEEK)) {
-            var from = LocalDateTime.now().minusDays(7);
-            postList = postRepository.findAllByRegDateAfter(from);
-
-        } else if(status.equals(DateStatus.RECENT_1MONTH)) {
-            var from = LocalDateTime.now().minusDays(30);
-            postList = postRepository.findAllByRegDateAfter(from);
-
-        } else if(status.equals(DateStatus.RECENT_3MONTH)) {
-            var from = LocalDateTime.now().minusDays(90);
-            postList = postRepository.findAllByRegDateAfter(from);
+        if (status == null || status == DateStatus.ALL) {
+            // 전체 + 정렬(원하면)
+            postList = postRepository.findAllByOrderByRegDateDesc();
+        } else if (status == DateStatus.RECENT_1WEEK) {
+            postList = postRepository.findAllByRegDateAfter(now.minusDays(7));
+        } else if (status == DateStatus.RECENT_1MONTH) {
+            postList = postRepository.findAllByRegDateAfter(now.minusDays(30));
+        } else if (status == DateStatus.RECENT_3MONTH) {
+            postList = postRepository.findAllByRegDateAfter(now.minusDays(90));
         } else {
-            var from = LocalDateTime.now().minusDays(180);
-            postList = postRepository.findAllByRegDateAfter(from);
+            // 명시적으로 RECENT_6MONTH 같은 enum을 두는 게 좋음
+            postList = postRepository.findAllByRegDateAfter(now.minusDays(180));
         }
 
-        return postList.stream().map(PostDto::toGetResponse).toList();
+        return postList.stream()
+                .map(PostDto::toGetResponse)
+                .toList();
     }
 
     @Transactional
@@ -208,11 +212,13 @@ public class PostService {
     }
 
     @Transactional
-    public PostListResponse getPostListNumber() {
-        Long totalCount = postRepository.count();
-        Long readyCount = postRepository.countByRegistrationStatus(RegisterStatus.REGISTER_READY);
-        Long approvedCount = postRepository.countByRegistrationStatus(RegisterStatus.REGISTER_SUCCESS);
-        Long rejectedCount = postRepository.countByRegistrationStatus(RegisterStatus.REGISTER_FAILED);
+    public PostListResponse getPostListNumber(String userId) {
+        User user = userRepository.findUserByUserId(userId);
+
+        Long totalCount = postRepository.countBySeller(user);
+        Long readyCount = postRepository.countByRegistrationStatusAndSeller(RegisterStatus.REGISTER_READY, user);
+        Long approvedCount = postRepository.countByRegistrationStatusAndSeller(RegisterStatus.REGISTER_SUCCESS, user);
+        Long rejectedCount = postRepository.countByRegistrationStatusAndSeller(RegisterStatus.REGISTER_FAILED, user);
 
 
         return PostListResponse.toResponse(totalCount, readyCount, approvedCount, rejectedCount);
@@ -233,7 +239,15 @@ public class PostService {
         Post post = postRepository.findById(id).orElse(null);
 
         assert post != null;
-        return PostDto.toGetOneResponse(post);
+
+        List<Image> images = s3Repository.findAllByPost(post);
+        List<String> urls = new ArrayList<>();
+
+        for(Image i : images) {
+            urls.add(i.getUrl());
+        }
+
+        return PostDto.toGetOneResponse(post, urls);
     }
 
 
@@ -288,6 +302,29 @@ public class PostService {
 
         return postList.stream().map(PostSellResponse::toResponse).toList();
     }
+
+    @Transactional
+    public List<ProductDto> getRecentList(String name, Long status) {
+        if(status == 0) {
+            name = "(활)" + name;
+            return productNativeRepository.findLatest2ByName(name);
+        } else if(status == 1) {
+            name = "(선)" + name;
+            return productNativeRepository.findLatest2ByName(name);
+        } else {
+            name = "(냉)" + name;
+            return productNativeRepository.findLatest2ByName(name);
+        }
+    }
+
+    @Transactional
+    public List<PostReceiveResponse> getReceiveList(String userId) {
+        User user = userRepository.findUserByUserId(userId);
+        List<Post> postList = postRepository.findAllByBuyerAndTotalPriceNotNull(user);
+
+        return postList.stream().map(PostReceiveResponse::toResponse).toList();
+    }
+
 
 
 }

@@ -5,6 +5,7 @@ import hgu.likelion.fish.commons.entity.DateStatus;
 import hgu.likelion.fish.commons.entity.RegisterStatus;
 import hgu.likelion.fish.commons.image.service.S3Service;
 import hgu.likelion.fish.commons.jwt.MyPrincipal;
+import hgu.likelion.fish.post.ProductDto;
 import hgu.likelion.fish.post.application.dto.PostDto;
 import hgu.likelion.fish.post.application.service.PostService;
 import hgu.likelion.fish.post.presentation.request.PostInfoRequest;
@@ -63,12 +64,15 @@ public class PostController {
 
 
     // 전체 목록 가져옴
+    // user 반영
     @GetMapping("/get/list")
-    public ResponseEntity<PostListResponse> getListPosts() {
+    public ResponseEntity<PostListResponse> getListPosts(@AuthenticationPrincipal MyPrincipal principal) {
+        String userId = principal.getUserId();
 
-        return ResponseEntity.ok(postService.getPostListNumber());
+        return ResponseEntity.ok(postService.getPostListNumber(userId));
     }
 
+    // user 반영
     @GetMapping("/get/auction/list")
     public ResponseEntity<PostAuctionListResponse> getAuctionPostCount() {
 
@@ -76,21 +80,25 @@ public class PostController {
     }
 
 
+    // user 반영
     @GetMapping("/get/all/{value}")
     public ResponseEntity<List<PostGetResponse>> getAllPosts(@PathVariable DateStatus value) {
         return ResponseEntity.ok(postService.getAllPost(value).stream().map(PostGetResponse::toResponse).toList());
     }
 
+    // user 반영
     @GetMapping("/get/ready/{value}")
     public ResponseEntity<List<PostGetResponse>> getReadyPosts(@PathVariable DateStatus value) {
         return ResponseEntity.ok(postService.getSpecificPosts(value, RegisterStatus.REGISTER_READY).stream().map(PostGetResponse::toResponse).toList());
     }
 
+    // user 반영
     @GetMapping("/get/success/{value}")
     public ResponseEntity<List<PostGetResponse>> getSuccessPosts(@PathVariable DateStatus value) {
         return ResponseEntity.ok(postService.getSpecificPosts(value, RegisterStatus.REGISTER_SUCCESS).stream().map(PostGetResponse::toResponse).toList());
     }
 
+    // user 반영
     @GetMapping("/get/failed/{value}")
     public ResponseEntity<List<PostGetResponse>> getFailedPosts(@PathVariable DateStatus value) {
         return ResponseEntity.ok(postService.getSpecificPosts(value, RegisterStatus.REGISTER_FAILED).stream().map(PostGetResponse::toResponse).toList());
@@ -118,24 +126,28 @@ public class PostController {
 
 
 
+    // user 반영
     @GetMapping("/get/auction/all")
     public ResponseEntity<List<PostAuctionResponse>> getAllAuctionPosts() {
 
         return ResponseEntity.ok(postService.getAllAuctionPosts().stream().map(PostAuctionResponse::toAuctionResponse).toList());
     }
 
+    // user 반영
     @GetMapping("/get/auction/ready")
     public ResponseEntity<List<PostAuctionResponse>> getReadyAuctionPosts() {
 
         return ResponseEntity.ok(postService.getSpecificAuctionPosts(AuctionStatus.AUCTION_READY).stream().map(PostAuctionResponse::toAuctionResponse).toList());
     }
 
+    // user 반영
     @GetMapping("/get/auction/current")
     public ResponseEntity<List<PostAuctionResponse>> getCurrentAuctionPosts() {
 
         return ResponseEntity.ok(postService.getSpecificAuctionPosts(AuctionStatus.AUCTION_CURRENT).stream().map(PostAuctionResponse::toAuctionResponse).toList());
     }
 
+    // user 반영
     @GetMapping("/get/auction/finish")
     public ResponseEntity<List<PostAuctionResponse>> getFinishAuctionPosts() {
 
@@ -165,6 +177,18 @@ public class PostController {
 
         return ResponseEntity.ok(postService.getBuyList(userId, value));
     }
+
+    @GetMapping("/get/recent/{name}/{status}")
+    public ResponseEntity<List<ProductDto>> getRecentList(@PathVariable String name, @PathVariable Long status) {
+        return ResponseEntity.ok(postService.getRecentList(name, status));
+    }
+
+    @GetMapping("/get/receive/user")
+    public ResponseEntity<List<PostReceiveResponse>> getReceiveList(@AuthenticationPrincipal MyPrincipal principal) {
+        return ResponseEntity.ok(postService.getReceiveList(principal.getUserId()));
+    }
+
+
 
 
 

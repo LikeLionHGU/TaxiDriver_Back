@@ -19,6 +19,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findAllByRegDateAfter(LocalDateTime from);
 
+    List<Post> findAllByOrderByRegDateDesc();
+
     List<Post> findAllByRegDateAfterAndRegistrationStatus(LocalDateTime from, RegisterStatus status);
 
     List<Post> findAllByRegistrationStatus(RegisterStatus status);
@@ -53,7 +55,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                            @Param("completed") AuctionStatus completed,
                            @Param("twentyFiveMinLimit") LocalDateTime twentyFiveMinLimit);
 
-    Long countByRegistrationStatus(RegisterStatus status);
+    Long countByRegistrationStatusAndSeller(RegisterStatus status, User user);
     Long countByAuctionStatusAndRegistrationStatus(AuctionStatus status, RegisterStatus registerStatus);
 
     List<Post> findPostsByIsUpdatedAndAuctionStatus(Boolean isUpdated, AuctionStatus status);
@@ -61,4 +63,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findAllBySellerAndTotalPriceNotNullAndRegDateAfter(User user, LocalDateTime from);
 
     List<Post> findAllByBuyerAndTotalPriceNotNullAndRegDateAfter(User user, LocalDateTime from );
+
+    List<Post> findAllByBuyerAndTotalPriceNotNull(User user);
+
+    Long countBySeller(User user);
+
 }
