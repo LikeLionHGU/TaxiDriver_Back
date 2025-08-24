@@ -4,6 +4,7 @@ import hgu.likelion.fish.auction.domain.entity.Auction;
 import hgu.likelion.fish.commons.entity.BaseEntity;
 import hgu.likelion.fish.commons.login.config.Role;
 import hgu.likelion.fish.post.domain.entity.Post;
+import hgu.likelion.fish.user.application.dto.UserDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
