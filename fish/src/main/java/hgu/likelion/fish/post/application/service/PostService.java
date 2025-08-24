@@ -10,6 +10,7 @@ import hgu.likelion.fish.post.domain.entity.Post;
 import hgu.likelion.fish.post.domain.repository.PostRepository;
 import hgu.likelion.fish.post.presentation.response.PostAuctionListResponse;
 import hgu.likelion.fish.post.presentation.response.PostListResponse;
+import hgu.likelion.fish.post.presentation.response.PostSellResponse;
 import hgu.likelion.fish.user.application.service.UserService;
 import hgu.likelion.fish.user.domain.entity.User;
 import hgu.likelion.fish.user.domain.repository.UserRepository;
@@ -233,6 +234,59 @@ public class PostService {
 
         assert post != null;
         return PostDto.toGetOneResponse(post);
+    }
+
+
+    @Transactional
+    public List<PostSellResponse> getSellList(String userId, DateStatus value) {
+        User user = userRepository.findUserByUserId(userId);
+        List<Post> postList;
+
+        if(value == DateStatus.ALL) {
+            var from = LocalDateTime.now();
+            postList = postRepository.findAllBySellerAndTotalPriceNotNullAndRegDateAfter(user, from); // 가격이 0이 아니어야 함
+
+        } else if(value == DateStatus.RECENT_1WEEK) {
+            var from = LocalDateTime.now().minusDays(7);
+
+            postList = postRepository.findAllBySellerAndTotalPriceNotNullAndRegDateAfter(user, from); // 가격이 0이 아니어야 함
+
+        } else if(value == DateStatus.RECENT_1MONTH) {
+            var from = LocalDateTime.now().minusDays(30);
+            postList = postRepository.findAllBySellerAndTotalPriceNotNullAndRegDateAfter(user, from); // 가격이 0이 아니어야 함
+
+        } else {
+            var from = LocalDateTime.now().minusDays(90);
+            postList = postRepository.findAllBySellerAndTotalPriceNotNullAndRegDateAfter(user, from); // 가격이 0이 아니어야 함
+        }
+
+        return postList.stream().map(PostSellResponse::toResponse).toList();
+    }
+
+    @Transactional
+    public List<PostSellResponse> getBuyList(String userId, DateStatus value) {
+        User user = userRepository.findUserByUserId(userId);
+        List<Post> postList;
+
+        if(value == DateStatus.ALL) {
+            var from = LocalDateTime.now();
+            postList = postRepository.findAllByBuyerAndTotalPriceNotNullAndRegDateAfter(user, from); // 가격이 0이 아니어야 함
+
+        } else if(value == DateStatus.RECENT_1WEEK) {
+            var from = LocalDateTime.now().minusDays(7);
+
+            postList = postRepository.findAllByBuyerAndTotalPriceNotNullAndRegDateAfter(user, from); // 가격이 0이 아니어야 함
+
+        } else if(value == DateStatus.RECENT_1MONTH) {
+            var from = LocalDateTime.now().minusDays(30);
+            postList = postRepository.findAllByBuyerAndTotalPriceNotNullAndRegDateAfter(user, from); // 가격이 0이 아니어야 함
+
+        } else {
+            var from = LocalDateTime.now().minusDays(90);
+            postList = postRepository.findAllByBuyerAndTotalPriceNotNullAndRegDateAfter(user, from); // 가격이 0이 아니어야 함
+        }
+
+        return postList.stream().map(PostSellResponse::toResponse).toList();
     }
 
 

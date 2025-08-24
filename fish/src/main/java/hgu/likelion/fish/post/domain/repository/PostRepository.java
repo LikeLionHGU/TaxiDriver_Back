@@ -3,11 +3,14 @@ package hgu.likelion.fish.post.domain.repository;
 import hgu.likelion.fish.commons.entity.AuctionStatus;
 import hgu.likelion.fish.commons.entity.RegisterStatus;
 import hgu.likelion.fish.post.domain.entity.Post;
+import hgu.likelion.fish.user.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -54,4 +57,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Long countByAuctionStatusAndRegistrationStatus(AuctionStatus status, RegisterStatus registerStatus);
 
     List<Post> findPostsByIsUpdatedAndAuctionStatus(Boolean isUpdated, AuctionStatus status);
+
+    List<Post> findAllBySellerAndTotalPriceNotNullAndRegDateAfter(User user, LocalDateTime from);
+
+    List<Post> findAllByBuyerAndTotalPriceNotNullAndRegDateAfter(User user, LocalDateTime from );
 }

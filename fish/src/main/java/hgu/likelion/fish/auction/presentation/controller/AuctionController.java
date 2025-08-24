@@ -6,6 +6,7 @@ import hgu.likelion.fish.auction.domain.entity.Auction;
 import hgu.likelion.fish.auction.presentation.request.AuctionInfoRequest;
 import hgu.likelion.fish.auction.presentation.response.AuctionAddResponse;
 import hgu.likelion.fish.auction.presentation.response.AuctionGetResponse;
+import hgu.likelion.fish.auction.presentation.response.AuctionStatusResponse;
 import hgu.likelion.fish.commons.jwt.MyPrincipal;
 import hgu.likelion.fish.post.application.service.PostService;
 import hgu.likelion.fish.user.application.service.UserService;
