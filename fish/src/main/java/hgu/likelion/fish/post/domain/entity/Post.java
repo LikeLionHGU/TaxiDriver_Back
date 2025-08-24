@@ -49,6 +49,7 @@ public class Post extends BaseEntity {
     private Integer totalPrice;
 
     private Boolean isUpdated; // 경매 완료 후에 Transaction으로 넘어갔는지 여부
+    private String failedReason;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User buyer;
