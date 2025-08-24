@@ -1,5 +1,7 @@
 package hgu.likelion.fish.post;
 
+import hgu.likelion.fish.auction.domain.entity.Auction;
+import hgu.likelion.fish.auction.domain.repository.AuctionRepository;
 import hgu.likelion.fish.commons.entity.AuctionStatus;
 import hgu.likelion.fish.post.domain.entity.Post;
 import hgu.likelion.fish.post.domain.repository.PostRepository;
@@ -18,6 +20,7 @@ import java.util.List;
 public class AuctionStatusScheduler {
 
     private final PostRepository repo;
+    private final AuctionRepository auctionRepository;
 
     // 예: 30초마다 검사
     @Scheduled(fixedDelay = 30_000)
@@ -47,17 +50,13 @@ public class AuctionStatusScheduler {
 
             for(Post p : postList) {
                 p.setIsUpdated(false);
+                Auction auction = auctionRepository.findTopByPostOrderByPriceDesc(p);
+                p.setBuyer(auction.getUser());
+                p.setTotalPrice(auction.getPrice());
             }
 
             repo.saveAll(postList);
-            updateTransaction(postList);
         }
-
-    }
-
-    @Transactional
-    public void updateTransaction(List<Post> postList) {
-
 
     }
 }

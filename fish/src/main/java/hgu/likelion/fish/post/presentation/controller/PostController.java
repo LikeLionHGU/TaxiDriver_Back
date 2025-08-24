@@ -152,4 +152,20 @@ public class PostController {
         return ResponseEntity.ok(postService.updateRegisterStatus(value, id));
     }
 
+    @GetMapping("/get/sell/list/{value}")
+    public ResponseEntity<List<PostSellResponse>> getSellList(@AuthenticationPrincipal MyPrincipal principal, @PathVariable DateStatus value) {
+        String userId = principal.getUserId();
+
+        return ResponseEntity.ok(postService.getSellList(userId, value));
+    }
+
+    @GetMapping("/get/buy/list/{value}")
+    public ResponseEntity<List<PostSellResponse>> getBuyList(@AuthenticationPrincipal MyPrincipal principal, @PathVariable DateStatus value) {
+        String userId = principal.getUserId();
+
+        return ResponseEntity.ok(postService.getBuyList(userId, value));
+    }
+
+
+
 }

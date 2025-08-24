@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -31,6 +33,9 @@ public class Auction extends BaseEntity {
     @JoinColumn(name = "post_id", nullable = false, unique = true)
     private Post post;
 
+    private Boolean isPassed; // 낙찰 여부
+    private LocalDateTime expiredDate; // 수령 마감 기한
+
 
     public static Auction fromDto(AuctionDto auctionDto) {
         return Auction.builder()
@@ -38,6 +43,7 @@ public class Auction extends BaseEntity {
                 .user(auctionDto.getUser())
                 .price(auctionDto.getPrice())
                 .post(auctionDto.getPost())
+                .isPassed(false) // 처음 생성 시에 false값 부여
                 .build();
 
     }
