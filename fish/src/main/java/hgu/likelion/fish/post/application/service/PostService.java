@@ -30,7 +30,7 @@ public class PostService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private S3Service s3Service;
+    private final S3Service s3Service;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -50,6 +50,9 @@ public class PostService {
         }
 
         Post post = Post.fromDto(postDto, images, user);
+        for (Image image : images) {
+            image.setPost(post);
+        }
         postRepository.save(post);
 
         List<String> urls = new ArrayList<>();
