@@ -74,9 +74,10 @@ public class PostController {
 
     // user 반영
     @GetMapping("/get/auction/list")
-    public ResponseEntity<PostAuctionListResponse> getAuctionPostCount() {
+    public ResponseEntity<PostAuctionListResponse> getAuctionPostCount(@AuthenticationPrincipal MyPrincipal principal) {
 
-        return ResponseEntity.ok(postService.getPostAuctionListNumber());
+        String userId = principal.getUserId();
+        return ResponseEntity.ok(postService.getPostAuctionListNumber(userId));
     }
 
 

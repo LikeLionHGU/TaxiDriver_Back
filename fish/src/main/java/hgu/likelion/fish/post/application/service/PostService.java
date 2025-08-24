@@ -225,11 +225,13 @@ public class PostService {
     }
 
     @Transactional
-    public PostAuctionListResponse getPostAuctionListNumber() {
-        Long totalCount = postRepository.countByRegistrationStatus(RegisterStatus.REGISTER_SUCCESS);
-        Long readyCount = postRepository.countByAuctionStatusAndRegistrationStatus(AuctionStatus.AUCTION_READY, RegisterStatus.REGISTER_SUCCESS);
-        Long currentCount = postRepository.countByAuctionStatusAndRegistrationStatus(AuctionStatus.AUCTION_CURRENT, RegisterStatus.REGISTER_SUCCESS);
-        Long finishCount = postRepository.countByAuctionStatusAndRegistrationStatus(AuctionStatus.AUCTION_FINISH, RegisterStatus.REGISTER_SUCCESS);
+    public PostAuctionListResponse getPostAuctionListNumber(String userId) {
+        User user = userRepository.findUserByUserId(userId);
+
+        Long totalCount = postRepository.countByRegistrationStatusAndSeller(RegisterStatus.REGISTER_SUCCESS, user);
+        Long readyCount = postRepository.countByAuctionStatusAndRegistrationStatusAndSeller(AuctionStatus.AUCTION_READY, RegisterStatus.REGISTER_SUCCESS, user);
+        Long currentCount = postRepository.countByAuctionStatusAndRegistrationStatusAndSeller(AuctionStatus.AUCTION_CURRENT, RegisterStatus.REGISTER_SUCCESS, user);
+        Long finishCount = postRepository.countByAuctionStatusAndRegistrationStatusAndSeller(AuctionStatus.AUCTION_FINISH, RegisterStatus.REGISTER_SUCCESS, user);
 
         return PostAuctionListResponse.toResponse(totalCount, readyCount, currentCount, finishCount);
     }
