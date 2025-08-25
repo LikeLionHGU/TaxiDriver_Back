@@ -57,3 +57,29 @@
 ```bash
 git clone https://github.com/your-github-id/Oullim_BE.git
 cd Oullim_BE
+
+# Server
+server.port=8080
+
+# Database
+spring.datasource.url=jdbc:postgresql://localhost:5432/oulrim
+spring.datasource.username=oulrim
+spring.datasource.password=secret
+spring.jpa.hibernate.ddl-auto=update
+
+# JWT
+jwt.secret.key=your_jwt_secret_key
+
+# S3
+s3.bucket=oulrim-dev
+s3.region=ap-northeast-2
+s3.access-key=****
+s3.secret-key=****
+
+# AI
+ai.base.url=http://localhost:8000
+ai.timeout.ms=8000
+
+./gradlew build
+java -jar build/libs/oulrim-0.0.1-SNAPSHOT.jar
+
