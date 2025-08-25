@@ -53,8 +53,8 @@
 
 ### 1) 프로젝트 클론
 ```bash
-git clone https://github.com/your-github-id/Oullim_BE.git
-cd Oullim_BE
+git clone https://github.com/LikeLionHGU/TaxiDriver_Back.git
+cd TaxiDriver_Back
 ```
 
 ### 2) 환경 설정 (application.properties)
