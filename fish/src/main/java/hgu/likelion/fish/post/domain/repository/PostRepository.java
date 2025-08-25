@@ -65,7 +65,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                            @Param("twentyFiveMinLimit") LocalDateTime twentyFiveMinLimit);
 
     Long countByRegistrationStatusAndSeller(RegisterStatus status, User user);
+    Long countByRegistrationStatus(RegisterStatus status);
+
     Long countByAuctionStatusAndRegistrationStatusAndSeller(AuctionStatus status, RegisterStatus registerStatus, User user);
+    Long countByAuctionStatusAndRegistrationStatus(AuctionStatus status, RegisterStatus registerStatus);
 
     List<Post> findPostsByIsUpdatedAndAuctionStatus(Boolean isUpdated, AuctionStatus status);
 

@@ -115,7 +115,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
 
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.setAllowedOrigins(List.of("http://localhost:3000", "https://fishboom.netlify.app/"));
         config.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.AUTHORIZATION,

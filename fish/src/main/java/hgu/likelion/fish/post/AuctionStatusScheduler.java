@@ -34,15 +34,15 @@ public class AuctionStatusScheduler {
         int s1 = repo.promoteToStarted(
                 AuctionStatus.AUCTION_READY,
                 AuctionStatus.AUCTION_CURRENT,
-                now.minusMinutes(10),
+                now.minusMinutes(1),
                 now
         );
 
-        // 25분 경과 → COMPLETED
+        // 15분 경과 → COMPLETED
         int s2 = repo.promoteToCompleted(
                 AuctionStatus.AUCTION_CURRENT,
                 AuctionStatus.AUCTION_FINISH,
-                now.minusMinutes(25)
+                now.minusMinutes(5)
         );
 
         if(s2 > 0) {
@@ -51,8 +51,12 @@ public class AuctionStatusScheduler {
             for(Post p : postList) {
                 p.setIsUpdated(false);
                 Auction auction = auctionRepository.findTopByPostOrderByPriceDesc(p);
-                p.setBuyer(auction.getUser());
-                p.setTotalPrice(auction.getPrice());
+                if (auction != null) {
+                    p.setBuyer(auction.getUser());
+                    p.setTotalPrice(auction.getPrice());
+                } else {
+                    repo.delete(p);
+                }
             }
 
             repo.saveAll(postList);

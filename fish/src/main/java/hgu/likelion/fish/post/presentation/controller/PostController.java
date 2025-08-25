@@ -80,6 +80,11 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostAuctionListNumber(userId));
     }
 
+    @GetMapping("/get/auction/list/admin")
+    public ResponseEntity<PostAuctionListResponse> getAuctionPostCountAdmin() {
+        return ResponseEntity.ok(postService.getPostAuctionListNumber());
+    }
+
 
 
 
@@ -150,6 +155,8 @@ public class PostController {
 
 
 
+
+
     // user 반영
     @GetMapping("/get/auction/all")
     public ResponseEntity<List<PostAuctionResponse>> getAllAuctionPosts(@AuthenticationPrincipal MyPrincipal principal) {
@@ -162,6 +169,21 @@ public class PostController {
 
         return ResponseEntity.ok(postService.getAllAuctionPosts().stream().map(PostAuctionResponse::toAuctionResponse).toList());
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // user 반영
     @GetMapping("/get/auction/ready")
@@ -223,10 +245,22 @@ public class PostController {
     // 등록 상태 업데이트
     // 허락 / 거절
     // 추후 코드 수정 필요
-    @PostMapping("/update/register/status/{value}/{id}")
-    public ResponseEntity<Boolean> updateRegisterStatus(@PathVariable Boolean value, @PathVariable Long id) {
-        return ResponseEntity.ok(postService.updateRegisterStatus(value, id));
+    @PostMapping("/update/register/status/true/{id}")
+    public ResponseEntity<Boolean> updateRegisterStatusTrue(@PathVariable Long id) {
+        return ResponseEntity.ok(postService.updateRegisterStatus(true, id, null));
     }
+
+    @PostMapping("/update/register/status/false/{id}")
+    public ResponseEntity<Boolean> updateRegisterStatusFalse(@PathVariable Long id, @RequestBody String failedReason) {
+        return ResponseEntity.ok(postService.updateRegisterStatus(false, id, failedReason));
+    }
+
+
+
+
+
+
+
 
     @GetMapping("/get/sell/list/{value}")
     public ResponseEntity<List<PostSellResponse>> getSellList(@AuthenticationPrincipal MyPrincipal principal, @PathVariable DateStatus value) {
@@ -269,6 +303,19 @@ public class PostController {
     }
 
 
+    @PostMapping("/update/receive/status/{id}")
+    public ResponseEntity<Boolean> updateReceiveStatus(@PathVariable Long id) {
+        return ResponseEntity.ok(postService.updateReceiveStatus(id));
+    }
+
+
+
+
+
+    @GetMapping("/get/detail/{id}")
+    public ResponseEntity<PostDetailCheckResponse> getDetailResponse(@PathVariable Long id) {
+        return ResponseEntity.ok(postService.getDetailResponse(id));
+    }
 
 
 
