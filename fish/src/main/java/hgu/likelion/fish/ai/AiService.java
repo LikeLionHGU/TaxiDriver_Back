@@ -1,5 +1,7 @@
 package hgu.likelion.fish.ai;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -33,12 +35,40 @@ public class AiService {
             @Override public String getFilename() { return file.getOriginalFilename(); }
         };
 
-        return aiClient.post()
+        ObjectMapper mapper = JsonMapper.builder()
+                .findAndAddModules()
+                .build();
+
+
+        String raw = aiClient.post()
                 .uri("/infer/json")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromMultipartData("file", resource))
                 .retrieve()
-                .bodyToMono(InferenceResult.class)
+                .bodyToMono(String.class)
                 .block();
+
+        if (raw == null || raw.isBlank()) {
+            throw new IllegalStateException("AI returned empty body");
+        }
+
+        return mapper.readValue(raw, InferenceResult.class);
+//        String raw = aiClient.post()
+//                .uri("/infer/json")
+//                .contentType(MediaType.MULTIPART_FORM_DATA)
+//                .body(BodyInserters.fromMultipartData("file", resource))
+//                .retrieve()
+//                .bodyToMono(String.class)
+//                .block();
+//        System.out.println(raw);
+//
+//        return aiClient.post()
+//                .uri("/infer/json")
+//                .contentType(MediaType.MULTIPART_FORM_DATA)
+//                .body(BodyInserters.fromMultipartData("file", resource))
+//                .retrieve()
+//                .bodyToMono(InferenceResult.class)
+//                .block();
     }
 }

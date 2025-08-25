@@ -93,6 +93,7 @@ public class PostDto {
                 .fishCount(post.getFishCount())
                 .fishWeight(post.getFishWeight())
                 .registrationStatus(post.getRegistrationStatus())
+                .reservePrice(post.getReservePrice())
                 .aiEvaluation(post.getAiEvaluation())
                 .build();
     }

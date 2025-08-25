@@ -41,7 +41,7 @@ public class Post extends BaseEntity {
     private RegisterStatus registrationStatus;
     private AuctionStatus auctionStatus;
 
-    private String commentBySeller;
+
 
 
     private LocalDateTime triggerAt;
@@ -87,9 +87,10 @@ public class Post extends BaseEntity {
                 .salesMethod(postDto.getSalesMethod())
                 .reservePrice(postDto.getReservePrice())
                 .images(images)
+                .origin(user.getOrigin())
                 .seller(user)
                 .aiEvaluation(inferenceResult.getStatus())
-                .reason(String.join(",", inferenceResult.getDecision_reasons()))
+                .reason(inferenceResult.getDecisionReasons())
                 .registrationStatus(RegisterStatus.REGISTER_READY)
                 .isUpdated(false)
                 .isReceived(false)

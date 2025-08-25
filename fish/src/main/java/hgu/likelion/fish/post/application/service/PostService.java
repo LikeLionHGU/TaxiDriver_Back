@@ -58,6 +58,7 @@ public class PostService {
 
             try {
                 s = aiService.relayToFastApi(file);
+                System.out.println(s);
 
             } catch (Exception ignored) {
             }
@@ -256,7 +257,7 @@ public class PostService {
 
 
     @Transactional
-    public Boolean updateRegisterStatus(Boolean value, Long id) {
+    public Boolean updateRegisterStatus(Boolean value, Long id, String failedReason) {
 
         try {
             Post post = postRepository.findById(id).orElse(null);
@@ -264,9 +265,11 @@ public class PostService {
             if(value) {
                 post.setRegistrationStatus(RegisterStatus.REGISTER_SUCCESS);
                 post.setTriggerAt(LocalDateTime.now());
+                post.setAuctionStatus(AuctionStatus.AUCTION_READY);
                 postRepository.save(post);
             } else {
                 post.setRegistrationStatus(RegisterStatus.REGISTER_FAILED);
+                post.setFailedReason(failedReason);
                 postRepository.save(post);
             }
 
@@ -299,6 +302,16 @@ public class PostService {
         Long readyCount = postRepository.countByAuctionStatusAndRegistrationStatusAndSeller(AuctionStatus.AUCTION_READY, RegisterStatus.REGISTER_SUCCESS, user);
         Long currentCount = postRepository.countByAuctionStatusAndRegistrationStatusAndSeller(AuctionStatus.AUCTION_CURRENT, RegisterStatus.REGISTER_SUCCESS, user);
         Long finishCount = postRepository.countByAuctionStatusAndRegistrationStatusAndSeller(AuctionStatus.AUCTION_FINISH, RegisterStatus.REGISTER_SUCCESS, user);
+
+        return PostAuctionListResponse.toResponse(totalCount, readyCount, currentCount, finishCount);
+    }
+
+    @Transactional
+    public PostAuctionListResponse getPostAuctionListNumber() {
+        Long totalCount = postRepository.countByRegistrationStatus(RegisterStatus.REGISTER_SUCCESS);
+        Long readyCount = postRepository.countByAuctionStatusAndRegistrationStatus(AuctionStatus.AUCTION_READY, RegisterStatus.REGISTER_SUCCESS);
+        Long currentCount = postRepository.countByAuctionStatusAndRegistrationStatus(AuctionStatus.AUCTION_CURRENT, RegisterStatus.REGISTER_SUCCESS);
+        Long finishCount = postRepository.countByAuctionStatusAndRegistrationStatus(AuctionStatus.AUCTION_FINISH, RegisterStatus.REGISTER_SUCCESS);
 
         return PostAuctionListResponse.toResponse(totalCount, readyCount, currentCount, finishCount);
     }
@@ -429,6 +442,37 @@ public class PostService {
         Long finishCount = postRepository.countByTotalPriceNotNullAndIsReceivedTrue();
 
         return PostAuctionCountResponse.toResponse(totalCount, waitCount, finishCount);
+    }
+
+
+
+    @Transactional
+    public PostDetailCheckResponse getDetailResponse(Long id) {
+        Post post = postRepository.findById(id).orElse(null);
+
+        assert post != null;
+
+        List<String> urls = new ArrayList<>();
+
+        List<Image> images = s3Repository.findAllByPost(post);
+
+        for(Image i : images) {
+            urls.add(i.getUrl());
+        }
+
+        return PostDetailCheckResponse.toResponse(post, urls);
+    }
+
+    @Transactional
+    public Boolean updateReceiveStatus(Long id) {
+        Post post = postRepository.findById(id).orElse(null);
+
+        try {
+            post.setIsReceived(true);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 
