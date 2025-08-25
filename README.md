@@ -6,8 +6,7 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-6DB33F?logo=springboot&logoColor=white)
 ![Java](https://img.shields.io/badge/Java-17+-red?logo=openjdk)
 ![Gradle](https://img.shields.io/badge/Gradle-8.x-02303A?logo=gradle)
-![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-4169E1?logo=postgresql)
-![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker)
+![MySQL](https://img.shields.io/badge/DB-MySQL-4479A1?logo=mysql)
 ![AWS](https://img.shields.io/badge/Storage-S3-FF9900?logo=amazons3)
 
 ---
