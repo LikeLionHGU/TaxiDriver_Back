@@ -40,14 +40,12 @@
 
 ## 🛠️ 기술 스택
 
-- **Framework**: Spring Boot 3.x  
+- **Framework**: Spring Boot 3.5.4 
 - **Language**: Java 17+  
-- **Database**: PostgreSQL (MySQL 호환 가능)  
+- **Database**: MySQL 
 - **Storage**: AWS S3  
 - **AI 모델**: CNN (품질검사)  
-- **Auth**: JWT, RBAC, CSRF 토큰  
-- **Infra**: Docker, Docker Compose  
-- **Docs & Test**: Swagger, JUnit, Spring REST Docs  
+- **Auth**: JWT, CSRF 토큰  
 
 ---
 
@@ -65,7 +63,7 @@ cd Oullim_BE
 server.port=8080
 
 # Database
-spring.datasource.url=jdbc:postgresql://localhost:5432/oulrim
+spring.datasource.url=jdbc:mysql://localhost:3306/likelion
 spring.datasource.username=oulrim
 spring.datasource.password=secret
 spring.jpa.hibernate.ddl-auto=update
@@ -74,18 +72,14 @@ spring.jpa.hibernate.ddl-auto=update
 jwt.secret.key=your_jwt_secret_key
 
 # S3
-s3.bucket=oulrim-dev
+s3.bucket=fish-back
 s3.region=ap-northeast-2
 s3.access-key=****
 s3.secret-key=****
-
-# AI
-ai.base.url=http://localhost:8000
-ai.timeout.ms=8000
 ```
 ### 3) 빌드 및 실행
 ```
 ./gradlew build
-java -jar build/libs/oulrim-0.0.1-SNAPSHOT.jar
+java -jar fish-0.0.1-SNAPSHOT.jar 
 ```
 
