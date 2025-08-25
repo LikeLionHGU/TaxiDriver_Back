@@ -57,8 +57,10 @@
 ```bash
 git clone https://github.com/your-github-id/Oullim_BE.git
 cd Oullim_BE
+```
 
 ### 2) 환경 설정 (application.properties)
+```
 # Server
 server.port=8080
 
@@ -80,8 +82,10 @@ s3.secret-key=****
 # AI
 ai.base.url=http://localhost:8000
 ai.timeout.ms=8000
-
+```
 ### 3) 빌드 및 실행
+```
 ./gradlew build
 java -jar build/libs/oulrim-0.0.1-SNAPSHOT.jar
+```
 
