@@ -3,9 +3,9 @@
 > “투명하고 신속한 온라인 경매, **어울림**에서 시작하세요.”  
 어민, 중도매인, 위판장을 하나의 플랫폼으로 연결하고 **CNN 기반 AI 품질검사**로 신뢰를 더합니다.
 
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-6DB33F?logo=springboot&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.4-6DB33F?logo=springboot&logoColor=white)
 ![Java](https://img.shields.io/badge/Java-17+-red?logo=openjdk)
-![Gradle](https://img.shields.io/badge/Gradle-8.x-02303A?logo=gradle)
+![Gradle](https://img.shields.io/badge/Gradle-8.14-02303A?logo=gradle)
 ![MySQL](https://img.shields.io/badge/DB-MySQL-4479A1?logo=mysql)
 ![AWS](https://img.shields.io/badge/Storage-S3-FF9900?logo=amazons3)
 
