@@ -25,4 +25,15 @@ public class UserResponse {
                 .token(token)
                 .build();
     }
+
+    /**
+     * 해당 코드는 HSF 테스트 용입니다.
+     * @param user
+     * @return
+     */
+    public static UserResponse from(User user) {
+        return UserResponse.builder()
+                .name(user.getName())
+                .build();
+    }
 }
